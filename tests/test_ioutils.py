@@ -130,7 +130,7 @@ class TestTimeout(unittest.TestCase):
         # Patch the thread start/join so our function is never called.
         with mock.patch('threading.Thread.start'):
             with mock.patch('threading.Thread.join'):
-                self.assertRaises(ioutils.TimeoutError, wrapped)
+                self.assertRaises(ioutils.Timeout, wrapped)
 
     def testTimeoutExcNotRaised(self):
         """Test that a TimeoutError is not raised if there is not a timeout."""

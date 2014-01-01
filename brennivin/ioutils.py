@@ -3,7 +3,7 @@ Contains utilities for working with IO,
 such as the :class:`retry` and :class:`timeout` decorators,
 and the :func:`is_local_port_open` function.
 
-Also defines :class:`TimeoutError` which is used in other IO-heavy areas of brennivin.
+Also defines :class:`Timeout` which is used in IO-heavy areas of brennivin.
 
 Members
 =======
@@ -17,7 +17,7 @@ import socket
 EPHEMERAL_PORT_RANGE = 49152, 65535
 
 
-class TimeoutError(socket.timeout, Exception):
+class Timeout(socket.timeout, Exception):
     pass
 
 
@@ -71,17 +71,21 @@ class retry(object):
 
 class timeout(object):
     """Decorator used for aborting operations after they have timed out.
+    Raises a ``Timeout`` on timeout.
 
-    Raises a TimeoutError on timeout. Note that since the exception happens on
-    another thread, the exception will be raised TWICE- on the problematic
-    thread (which cannot easily be try/excepted around), and on the calling
-    thread (which will raise it, but without the proper stack trace).
-
-    Note that this starts the wrapped function on a thread. If the function
-    times out, the thread will not be destroyed. This is a potential memory
-    and performance leak. The only way around this is to use multiprocessing,
-    which should be a future optimization.
+    The actual work happens on a new thread.
+    Patch the timeout.start_thread method with your own compatible method
+    if you do not want to use a thread to run the operation,
+    such as if you want to use tasklets or greenlets from
+    stackless or gevent.
     """
+
+    @classmethod
+    def start_thread(cls, target):
+        t = threading.Thread(target=target)
+        t.start()
+        return t
+
     def __init__(self, timeoutSecs=5):
         """Initialize.
 
@@ -95,25 +99,19 @@ class timeout(object):
             innerExcRaised = []
 
             def inner():
-                #Since this is on another thread, if we let it raise we'd get
-                # the TimeoutError and we'd also get the actual error. So if
-                # we raise, don't do the TimeoutError and instead re-raise the
-                # thrown error.
                 try:
                     result = func(*args, **kwargs)
                     innerResult.append(result)
                 except Exception as exc:
                     innerExcRaised.append(exc)
-                    raise
-            t = threading.Thread(target=inner)
-            t.start()
+            t = type(self).start_thread(inner)
             t.join(timeout=self.timeoutSecs)
             if innerResult:
                 return innerResult[0]
             if innerExcRaised:
                 #Exc raised on thread so just don't return anything.
                 raise innerExcRaised[0]
-            raise TimeoutError
+            raise Timeout
         return wrapped
 
 
