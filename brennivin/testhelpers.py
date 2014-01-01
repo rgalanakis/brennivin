@@ -5,9 +5,20 @@ Members
 =======
 """
 from __future__ import print_function
+import sys
 import xml.etree.ElementTree as _elementtree
 
 from . import dochelpers as _dochelpers, osutils as _osutils
+
+if sys.version_info < (2, 7):
+    try:
+        # noinspection PyUnresolvedReferences,PyPackageRequirements
+        import unittest2 as unittest
+    except ImportError:
+        raise ImportError('unittest2 required for use in <= python2.6')
+else:
+    # noinspection PyUnresolvedReferences
+    import unittest
 
 
 def assertEqualPretty(testcase, ideal, calculated, msg=None):

@@ -1,7 +1,4 @@
-import unittest
-
-
-class FakeTest(unittest.TestCase):
-
-    def test_foo(self):
-        pass
+# Patch unittest2 into unittest, or not.
+import sys
+from brennivin import testhelpers
+sys.modules['unittest'] = testhelpers.unittest
