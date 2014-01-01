@@ -17,7 +17,10 @@ import xml.etree.ElementTree as _elementtree
 
 import mock as _mock
 
-from . import dochelpers as _dochelpers, osutils as _osutils
+from . import (
+    dochelpers as _dochelpers,
+    osutils as _osutils,
+    zipfileutils as _zipfileutils)
 
 if _sys.version_info < (2, 7):
     try:
@@ -156,6 +159,15 @@ def assertXmlEqual(a, b):
         print('a:', a)
         print('b:', b)
         raise AssertionError('XMLs not equal.')
+
+
+def assertZipEqual(calcpath, idealpath):
+    try:
+        _zipfileutils.compare_zip_files(calcpath, idealpath)
+        return
+    except _zipfileutils.FileComparisonError as ex:
+        print('%s != %s' % (calcpath, idealpath))
+        raise AssertionError(ex.args[0])
 
 
 def assertFoldersEqual(
