@@ -11,6 +11,7 @@ This aids in creating version-agnostic test cases.
 """
 from __future__ import print_function
 import sys
+import time
 import xml.etree.ElementTree as _elementtree
 
 from . import dochelpers as _dochelpers, osutils as _osutils
@@ -154,3 +155,30 @@ def assertFoldersEqual(
         print('ideal:', idealfolder)
         print('calc: ', calcfolder)
         raise
+
+
+class patch_time(object):
+
+    ATTRS = ['clock', 'time', 'sleep']
+
+    def __init__(self, starttime=0):
+        self.starttime = starttime
+        self.old = None
+        self._now = 0
+
+    def __enter__(self):
+        self.old = [(a, getattr(time, a)) for a  in self.ATTRS]
+        [setattr(time, a, getattr(self, a)) for a in self.ATTRS]
+        return self
+
+    def __exit__(self, *_):
+        [setattr(time, a, attr) for (a, attr) in self.old]
+
+    def clock(self):
+        return self._now
+
+    def time(self):
+        return self._now + self.starttime
+
+    def sleep(self, sec):
+        self._now += sec
