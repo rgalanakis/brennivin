@@ -1,7 +1,6 @@
 import logging
 import os
 import tempfile
-import time
 import unittest
 
 from brennivin import itertoolsext, osutils, logutils

@@ -26,7 +26,7 @@ try:
     NullHandler = logging.NullHandler
 except AttributeError:
     # python 2.6 does not have this null handler so we need to patch this.
-    class NullHandler(logging.Handler): #pragma: no cover
+    class NullHandler(logging.Handler):
         """
         This handler does nothing. It's intended to be used to avoid the
         "No handlers could be found for logger XXX" one-off warning. This is
@@ -137,6 +137,7 @@ def get_filenames_from_loggers(loggers=None, _logging=None):
     use all loggers from :mod:`logging` module.
     """
     _logging = _logging or logging
+    # noinspection PyUnresolvedReferences
     loggers = loggers or (
         _logging.Logger.manager.loggerDict.values() + [_logging.root])
     allfilenames = set()
@@ -189,6 +190,6 @@ def wrap_line(s, maxlines, maxlen=254, pfx="- "):
         maxlines -= 1
         yield s[:i]
         while i < e and maxlines:
-            yield pfx + s[i:i+maxlen]
+            yield pfx + s[i:i + maxlen]
             i += maxlen
             maxlines -= 1
