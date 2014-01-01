@@ -3,6 +3,11 @@ Auxilliary classes to facilitate testing.
 
 Members
 =======
+
+``unittest``: Points to the ``unittest`` module in Python >= 2.7,
+and ``unittest2`` in Python <= 2.6.
+This aids in creating version-agnostic test cases.
+
 """
 from __future__ import print_function
 import sys
