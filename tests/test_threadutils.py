@@ -299,10 +299,10 @@ class TestTimerExt(unittest.TestCase):
         self.timediff = None
 
         def callback():
-            self.timediff = time.clock() - self.stime
+            self.timediff = time.time() - self.stime
         t = threadutils.TimerExt(interval, callback)
         t.start()
-        self.stime = time.clock()
+        self.stime = time.time()
         return t
 
     def testFires(self):
