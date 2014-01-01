@@ -58,6 +58,15 @@ def assertCrcEqual(testcase, calcpath, idealpath, asLib=False):
 
 
 def compareXml(x1, x2, reporter=_dochelpers.identity):
+    """Compares two xml elements.
+    If they are equal, return True. If not, return False.
+    Differences are reported by calling the ``reporter`` parameter,
+    such as ::
+
+        reporter('Tags do not match: Foo and Bar')
+
+    :type x1: xml.etree.ElementTree.Element
+    """
     if x1.tag != x2.tag:
         reporter('Tags do not match: %s and %s' % (x1.tag, x2.tag))
         return False
@@ -102,6 +111,11 @@ def _compareXmlText(t1, t2):
 
 
 def assertXmlEqual(a, b):
+    """Asserts two xml documents are equal.
+
+    :type a: (basestring, xml.etree.ElementTree.Element)
+    :type b: (basestring, xml.etree.ElementTree.Element)
+    """
     if isinstance(a, basestring):
         a = _elementtree.fromstring(a)
     if isinstance(b, basestring):
