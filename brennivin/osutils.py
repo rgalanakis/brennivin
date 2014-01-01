@@ -10,6 +10,7 @@ import binascii
 import errno
 import fnmatch
 import os
+import tempfile
 
 
 def crc_from_filename(filename):
@@ -43,3 +44,16 @@ def makedirs(path, mode=0777):
         if err.errno != errno.EEXIST:
             raise
     return path
+
+
+def mktemp(*args, **kwargs):
+    """Returns an absolute temporary filename.
+    A replacement for python's deprecated mktemp.
+    Will call mkstemp and close the resultant file.
+
+    Args are the same as tempfile.mkstemp
+    """
+    handle, filename = tempfile.mkstemp(*args, **kwargs)
+    os.close(handle)
+    return filename
+
