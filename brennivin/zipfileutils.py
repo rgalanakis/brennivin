@@ -11,8 +11,8 @@ Members
 
 """
 
-import os
-import zipfile
+import os as _os
+import zipfile as _zipfile
 from zipfile import ZipFile
 
 if not hasattr(ZipFile, '__enter__'):
@@ -56,9 +56,9 @@ def write_files(fullpaths, zfile, include=ALL, exclude=NONE,
         if include(path) and not exclude(path):
             arcname = None
             if rootpath:
-                arcname = os.path.relpath(path, rootpath)
+                arcname = _os.path.relpath(path, rootpath)
                 if subdir:
-                    arcname = os.path.join(subdir, arcname)
+                    arcname = _os.path.join(subdir, arcname)
             zfile.write(path, arcname)
 
 
@@ -84,10 +84,10 @@ def zip_dir(rootdir, outfile, include=ALL, exclude=NONE, subdir=None):
       ``/spam/eggs/ham.txt`` and ``subdir`` of ``foo``
       would yield the archive file ``foo/eggs/ham.txt``.
     """
-    outdir = os.path.dirname(outfile)
-    if not os.path.exists(outdir):
-        os.makedirs(outdir)
-    with ZipFile(outfile, 'w', zipfile.ZIP_DEFLATED) as zfile:
+    outdir = _os.path.dirname(outfile)
+    if not _os.path.exists(outdir):
+        _os.makedirs(outdir)
+    with ZipFile(outfile, 'w', _zipfile.ZIP_DEFLATED) as zfile:
         write_dir(rootdir, zfile, include, exclude, subdir)
 
 
@@ -98,15 +98,15 @@ def is_inside_zipfile(filepath):
 
     :param filepath: Fully qualified path to a file
     """
-    folderpath, filename = os.path.split(filepath)
+    folderpath, filename = _os.path.split(filepath)
     is_zip = False
     # Check if filename exists to avoid an infinitely repeating os.path.split loop
     while folderpath and filename:
-        if os.path.exists(folderpath):
-            if zipfile.is_zipfile(folderpath):
+        if _os.path.exists(folderpath):
+            if _zipfile.is_zipfile(folderpath):
                 is_zip = True
             break
-        folderpath, filename = os.path.split(folderpath)
+        folderpath, filename = _os.path.split(folderpath)
     return is_zip
 
 
@@ -118,8 +118,8 @@ def compare_zip_files(z1, z2):
       Message contains a string summarizing the difference.
     """
 
-    f1infos = zipfile.ZipFile(z1).infolist()
-    f2infos = zipfile.ZipFile(z2).infolist()
+    f1infos = _zipfile.ZipFile(z1).infolist()
+    f2infos = _zipfile.ZipFile(z2).infolist()
 
     f1names = sorted([f.filename for f in f1infos])
     f2names = sorted([f.filename for f in f2infos])

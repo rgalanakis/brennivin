@@ -4,7 +4,7 @@ Functions for formatting numbers in a pretty way.
 Members
 =======
 """
-import math
+import math as _math
 
 
 # noinspection PyShadowingBuiltins
@@ -22,11 +22,11 @@ def format(num, precision):
     This kind of thing is wonderful for producing tables for
     human consumption.
     """
-    accpow = math.floor(math.log10(precision))
+    accpow = _math.floor(_math.log10(precision))
     if num < 0:
-        digits = int(math.fabs(num / pow(10, accpow) - 0.5))
+        digits = int(_math.fabs(num / pow(10, accpow) - 0.5))
     else:
-        digits = int(math.fabs(num / pow(10, accpow) + 0.5))
+        digits = int(_math.fabs(num / pow(10, accpow) + 0.5))
     result = ''
     if digits > 0:
         for i in range(0, int(accpow)):

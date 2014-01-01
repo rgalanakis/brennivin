@@ -60,7 +60,7 @@ Members
 =======
 """
 
-import yaml
+import yaml as _yaml
 
 
 __all__ = ['dumps', 'dumpfile', 'dump', 'loads', 'loadfile', 'load']
@@ -69,8 +69,8 @@ __all__ = ['dumps', 'dumpfile', 'dump', 'loads', 'loadfile', 'load']
 class PyIO(object):
 
     def __init__(self):
-        self._loader = yaml.Loader
-        self._dumper = yaml.Dumper
+        self._loader = _yaml.Loader
+        self._dumper = _yaml.Dumper
 
     def dumps(self, obj, **kwargs):
         return self.dump(obj, None, **kwargs)
@@ -80,7 +80,7 @@ class PyIO(object):
             self.dump(obj, f, **kwargs)
 
     def dump(self, obj, stream, **kwargs):
-        return yaml.dump(obj, stream, Dumper=self._dumper, **kwargs)
+        return _yaml.dump(obj, stream, Dumper=self._dumper, **kwargs)
 
     def loads(self, s):
         return self.load(s)
@@ -90,21 +90,21 @@ class PyIO(object):
             return self.load(f)
 
     def load(self, stream):
-        return yaml.load(stream, Loader=self._loader)
+        return _yaml.load(stream, Loader=self._loader)
 
 
 class CIO(PyIO):
 
     @classmethod
     def is_supported(cls):
-        return hasattr(yaml, 'CLoader')
+        return hasattr(_yaml, 'CLoader')
 
     def __init__(self):
         PyIO.__init__(self)
         self._loader = self._dumper = None
         if self.is_supported():
-            self._loader = yaml.CLoader
-            self._dumper = yaml.CDumper
+            self._loader = _yaml.CLoader
+            self._dumper = _yaml.CDumper
 
 
 def _preferred():

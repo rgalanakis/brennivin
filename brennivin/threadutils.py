@@ -28,13 +28,13 @@ Members
 =======
 """
 
-import inspect
-import sys
-import threading
-import time
-import traceback
+import inspect as _inspect
+import sys as _sys
+import threading as _threading
+import time as _time
+import traceback as _traceback
 
-from . import dochelpers
+from . import dochelpers as _dochelpers
 
 
 class ChunkIter(object):
@@ -61,7 +61,7 @@ class ChunkIter(object):
 
     @classmethod
     def start_thread(cls, target, name):
-        thread = threading.Thread(target=target, name=name)
+        thread = _threading.Thread(target=target, name=name)
         thread.daemon = True
         thread.start()
         return thread
@@ -77,8 +77,8 @@ class ChunkIter(object):
         self._fireCallback = Signal('list')
         self._fireCallback.connect(callback)
 
-        self.threading = threading
-        self.sleep = time.sleep
+        self.threading = _threading
+        self.sleep = _time.sleep
         self.thread = type(self).start_thread(
             self._run_thread, 'ChunkIterWorker')
 
@@ -147,7 +147,7 @@ class Signal(object):
     """
 
     def __init__(self, eventdoc=None,
-                 onerror=dochelpers.pretty_module_func(traceback.print_exception)):
+                 onerror=_dochelpers.pretty_module_func(_traceback.print_exception)):
         self._delegates = []
         self.eventdoc = eventdoc
         self.onerror = onerror
@@ -161,14 +161,14 @@ class Signal(object):
             try:
                 d(*args, **kwargs)
             except Exception:
-                self.onerror(*sys.exc_info())
+                self.onerror(*_sys.exc_info())
         return len(dels)
 
     def disconnect(self, callback):
         self._delegates.remove(callback)
 
 
-class ExceptionalThread(threading.Thread):
+class ExceptionalThread(_threading.Thread):
     """Drop-in subclass for a regular :class:`threading.Thread`.
 
     If an error occurs during :meth:`run`:
@@ -198,7 +198,7 @@ class ExceptionalThread(threading.Thread):
     """
     def __init__(self, *args, **kwargs):
         self.reraise = kwargs.pop('reraise', None)
-        threading.Thread.__init__(self, *args, **kwargs)
+        _threading.Thread.__init__(self, *args, **kwargs)
         self.excepted = Signal('(etype, value, tb)')
         self.exc_info = None
 
@@ -206,13 +206,13 @@ class ExceptionalThread(threading.Thread):
         # Impossible to test the reraise stuff because its only side effect
         # is writing to stderr.
         try:
-            threading.Thread.run(self)
+            _threading.Thread.run(self)
         except Exception:
-            self.exc_info = sys.exc_info()
-            defaultExceptHook = sys.excepthook == sys.__excepthook__
+            self.exc_info = _sys.exc_info()
+            defaultExceptHook = _sys.excepthook == _sys.__excepthook__
             if not defaultExceptHook:
                 # http://bugs.python.org/issue1230540
-                sys.excepthook(*self.exc_info)
+                _sys.excepthook(*self.exc_info)
             hadlisteners = self.excepted.emit(self.exc_info)
             reraise = self.reraise
             if reraise is None:
@@ -226,12 +226,12 @@ class ExceptionalThread(threading.Thread):
                 raise
 
     def join(self, timeout=None):
-        threading.Thread.join(self, timeout)
+        _threading.Thread.join(self, timeout)
         if self.exc_info:
             raise self.exc_info[0], self.exc_info[1], self.exc_info[2]
 
 
-class NotAThread(threading.Thread):
+class NotAThread(_threading.Thread):
     """A thread whose :meth:`start` method runs synchronously.
     Useful to say ``ExceptionalThread = NotAThread`` if you want to debug
     a program without threading.
@@ -249,7 +249,7 @@ class NotAThread(threading.Thread):
 
 
 # noinspection PyProtectedMember
-class TimerExt(threading._Timer):
+class TimerExt(_threading._Timer):
     """Extends the interface of :class:`threading.Timer` to allow for a
     :meth:`restart` method, which will restart the timer. May be extended in
     other ways in the future.
@@ -264,8 +264,8 @@ class TimerExt(threading._Timer):
             raise ValueError('interval must be > 0, got %s' % interval)
         if function is None:
             raise ValueError('function cannot be None.')
-        threading._Timer.__init__(self, interval, function, args, kwargs or {})
-        self._lock = threading.Lock()
+        _threading._Timer.__init__(self, interval, function, args, kwargs or {})
+        self._lock = _threading.Lock()
         self._restartRequested = False
         self.name = 'TimerExtThread'
 
@@ -325,7 +325,7 @@ class Token(object):
         return self._isSet
 
 
-def memoize(func=None, useLock=False, _lockcls=dochelpers.ignore):
+def memoize(func=None, useLock=False, _lockcls=_dochelpers.ignore):
     """Decorator for parameterless functions, to cache their return value.
     This is functionally the same as using a Lazy
     instance but allows the use of true functions instead of attributes.
@@ -341,7 +341,7 @@ def memoize(func=None, useLock=False, _lockcls=dochelpers.ignore):
       so it can only be evaluated once.
     """
     def hasParameterless(func_):
-        argspec = inspect.getargspec(func_)
+        argspec = _inspect.getargspec(func_)
         return any(argspec)
 
     if not func and not useLock:
@@ -358,7 +358,7 @@ def memoize(func=None, useLock=False, _lockcls=dochelpers.ignore):
                 cache.append(func(*args, **kwargs))
             return cache[0]
         return inner
-    lock = (_lockcls or threading.Lock)()
+    lock = (_lockcls or _threading.Lock)()
 
     def inner(func_):
         def inner2(*args, **kwargs):
@@ -388,7 +388,7 @@ class expiring_memoize(object):
     """
     def __init__(self, expiry=0, gettime=None):
         self.expiry = expiry
-        self.gettime = gettime or time.time
+        self.gettime = gettime or _time.time
 
     def __call__(self, func):
         def wrapped(*args):

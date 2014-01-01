@@ -16,17 +16,17 @@ Members
 =======
 """
 
-import fnmatch
-import logging
-import os
-import time
+import fnmatch as _fnmatch
+import logging as _logging
+import os as _os
+import time as _time
 
 
 try:
-    NullHandler = logging.NullHandler
+    NullHandler = _logging.NullHandler
 except AttributeError:
     # python 2.6 does not have this null handler so we need to patch this.
-    class NullHandler(logging.Handler):
+    class NullHandler(_logging.Handler):
         """
         This handler does nothing. It's intended to be used to avoid the
         "No handlers could be found for logger XXX" one-off warning. This is
@@ -38,7 +38,7 @@ except AttributeError:
         """
         def emit(self, record):
             pass
-    logging.NullHandler = NullHandler
+    _logging.NullHandler = NullHandler
 
 
 class Fmt(object):
@@ -53,21 +53,21 @@ class Fmt(object):
     - M: message
     """
     NTLM = '%(name)s %(asctime)s %(levelname)s:  %(message)s'
-    FMT_NTLM = logging.Formatter(NTLM)
+    FMT_NTLM = _logging.Formatter(NTLM)
     LM = '%(levelname)s: %(message)s'
-    FMT_LM = logging.Formatter(LM)
+    FMT_LM = _logging.Formatter(LM)
 
 
-class MultiLineIndentFormatter(logging.Formatter):
+class MultiLineIndentFormatter(_logging.Formatter):
     """Indents every newline character in a formatted logrecord to have
     the same indentation as the formatted record's header.
     """
     def __init__(self, fmt=None, datefmt=None, sep=' '):
-        logging.Formatter.__init__(self, fmt, datefmt)
+        _logging.Formatter.__init__(self, fmt, datefmt)
         self.sep = sep
 
     def format(self, record):
-        formattedRecord = logging.Formatter.format(self, record)
+        formattedRecord = _logging.Formatter.format(self, record)
         header, footer = formattedRecord.split(record.msg)
         # noinspection PyTypeChecker
         s = formattedRecord.replace('\n', '\n' + (self.sep * len(header)))
@@ -89,7 +89,7 @@ def timestamped_filename(
     >>> timestamped_filename(r'C:\blah.log', timestruct=(2010,9,8,7,6,5,4,3,0))
     r'C:\blah_2010-09-08-07-06-05.log'
     """
-    head, ext = os.path.splitext(filename)
+    head, ext = _os.path.splitext(filename)
     timestr = timestamp(fmt, timestruct)
     return '%s%s%s%s' % (head, sep, timestr, ext)
 
@@ -102,13 +102,13 @@ def timestamp(fmt, timestruct=None):
       for details
     :param timestruct: 9-tuple, see :py:func:`time.gmtime` for details.
     """
-    return time.strftime(fmt, timestruct or time.gmtime())
+    return _time.strftime(fmt, timestruct or _time.gmtime())
 
 
 def get_timestamped_logfilename(
         folder, basename=None, ext='.log',
         fmt='%Y-%m-%d-%H-%M-%S', timestruct=None,
-        _getpid=os.getpid):
+        _getpid=_os.getpid):
     """Using default keyword arguments
     return filename ``<folder>/<basename>_<timestamp>_<pid>.log``
     in the app's folder in ccptechart prefs.
@@ -118,11 +118,11 @@ def get_timestamped_logfilename(
       If None, use ``os.path.basename(folder)``.
     """
     if basename is None:
-        basename = os.path.basename(folder)
+        basename = _os.path.basename(folder)
     timestamped = timestamp(fmt, timestruct)
     pid = _getpid()
     logname = '{basename}_{timestamped}_pid{pid}{ext}'.format(**locals())
-    logfilename = os.path.join(folder, logname)
+    logfilename = _os.path.join(folder, logname)
     try:
         remove_old_files(folder, '*{basename}_*{ext}'.format(**locals()), 15)
     except OSError:
@@ -130,16 +130,17 @@ def get_timestamped_logfilename(
     return logfilename
 
 
-def get_filenames_from_loggers(loggers=None, _logging=None):
+def get_filenames_from_loggers(loggers=None, _loggingmodule=None):
     """
     Get the filenames of all log files from loggers.
     If not supplied,
     use all loggers from :mod:`logging` module.
     """
-    _logging = _logging or logging
+    _loggingmodule = _loggingmodule or _logging
     # noinspection PyUnresolvedReferences
     loggers = loggers or (
-        _logging.Logger.manager.loggerDict.values() + [_logging.root])
+        _loggingmodule.Logger.manager.loggerDict.values() +
+        [_loggingmodule.root])
     allfilenames = set()
     # Placeholders can be in the logger so limit it to
     # only loggers who have handlers.
@@ -148,7 +149,7 @@ def get_filenames_from_loggers(loggers=None, _logging=None):
         # those that don't have it.
         filenames = [getattr(h, 'baseFilename', None) for h in logger.handlers]
         for f in filter(None, filenames):
-            allfilenames.add(os.path.abspath(f))
+            allfilenames.add(_os.path.abspath(f))
     return tuple(allfilenames)
 
 
@@ -162,14 +163,14 @@ def remove_old_files(rootDir, namePattern='*', maxFiles=1):
         raise ValueError('maxFiles must be >= 0, got %s' % maxFiles)
 
     lstFiles = []
-    for f in os.listdir(rootDir):
-        if fnmatch.fnmatch(f, namePattern):
-            fileName = os.path.join(rootDir, f)
+    for f in _os.listdir(rootDir):
+        if _fnmatch.fnmatch(f, namePattern):
+            fileName = _os.path.join(rootDir, f)
             lstFiles.append(fileName)
-    lstFiles.sort(key=os.path.getmtime, reverse=True)
+    lstFiles.sort(key=_os.path.getmtime, reverse=True)
     for f in lstFiles[maxFiles:]:
         try:
-            os.remove(f)
+            _os.remove(f)
         except (OSError, IOError):
             pass
 

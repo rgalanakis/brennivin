@@ -11,10 +11,10 @@ such as when they are called from a utility function in which we aren't interest
 """
 
 
-import linecache
-import pprint
-import sys
-from traceback import format_exception_only
+import linecache as _linecache
+import pprint as _pprint
+import sys as _sys
+from traceback import format_exception_only as _format_exception_only
 
 
 #formatting constants:
@@ -28,7 +28,7 @@ def print_exc(limit=None, file=None, show_locals=0, format=FORMAT_NORMAL):
 
 
 def format_exc(limit=None, show_locals=0, format=FORMAT_NORMAL):
-    etype, value, tb = sys.exc_info()
+    etype, value, tb = _sys.exc_info()
     try:
         return ''.join(format_exception(etype, value, tb, limit, show_locals, format))
     finally:
@@ -47,7 +47,7 @@ def format_exception(etype, value, tb, limit=None, show_locals=0, format=FORMAT_
         lst = lst + format_tb(tb, limit, show_locals, format)
     else:
         lst = []
-    return lst + format_exception_only(etype, value)
+    return lst + _format_exception_only(etype, value)
 
 
 def print_stack(f=None, limit=None, up=0, show_locals=0, format=FORMAT_NORMAL, file=None):
@@ -113,7 +113,7 @@ def _format_locals(f_locals, format):
         #todo: consider using prettyprinter here
         try:
             width = 253 - len(extra)  # limit according to log server
-            val = pprint.pformat(value, depth=1, width=width)
+            val = _pprint.pformat(value, depth=1, width=width)
             #truncate each var's dump to 1024 bytes
             if len(val) > 1024:
                 val = val[:1024] + "..."
@@ -153,7 +153,7 @@ def extract_stack(f=None, limit=None, up=0, extract_locals=0):
         try:
             raise ZeroDivisionError
         except ZeroDivisionError:
-            f = sys.exc_info()[2].tb_frame.f_back
+            f = _sys.exc_info()[2].tb_frame.f_back
     frames = []
     n = 0
     while f is not None and (limit is None or n < limit + up):
@@ -177,8 +177,8 @@ def _extract_frames(frames, extract_locals=0):
         co = f.f_code
         filename = co.co_filename
         name = co.co_name
-        linecache.checkcache(filename)
-        line = linecache.getline(filename, lineno, f.f_globals)
+        _linecache.checkcache(filename)
+        line = _linecache.getline(filename, lineno, f.f_globals)
         if line:
             line = line.strip()
         else:
@@ -190,5 +190,5 @@ def _extract_frames(frames, extract_locals=0):
 
 def _getfile(file):
     if file is None:
-        file = sys.stderr
+        file = _sys.stderr
     return file

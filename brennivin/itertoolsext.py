@@ -23,7 +23,7 @@ Members
 =======
 """
 
-import datetime
+import datetime as _datetime
 from itertools import *
 
 from .dochelpers import identity as _identity, default as _unsupplied
@@ -129,7 +129,7 @@ def count(seq, predicate=None):
     return i
 
 
-def datespan(startdate, enddate, delta=datetime.timedelta(days=1)):
+def datespan(startdate, enddate, delta=_datetime.timedelta(days=1)):
     """Yield datetimes while walking from startdate to enddate.
     If startdate is later than endddate,
     will count backwards starting at startdate.
@@ -141,11 +141,11 @@ def datespan(startdate, enddate, delta=datetime.timedelta(days=1)):
     :param enddate: The date to stop yielding at.
     :param delta: The size of the step.
 
-    >>> dt = datetime.datetime
+    >>> dt = _datetime.datetime
     >>> len(list(datespan(dt(2010, 2, 20), dt(2010, 4, 21))))
     60
     >>> len(list(datespan(dt(2010, 2, 20), dt(2010, 4, 21),
-    ...                   datetime.timedelta(days=2))))
+    ...                   _datetime.timedelta(days=2))))
     30
     >>> len(list(datespan(dt(2010, 4, 21), dt(2010, 2, 20))))
     60
@@ -236,7 +236,7 @@ def groups_of_n(seq, n):
         msg = 'Sequence length %s not divisible by %s' % (len(seq), n)
         raise ArithmeticError(msg)
 
-    return [seq[i:i+n] for i in range(0, len(seq), n)]
+    return [seq[i:i + n] for i in range(0, len(seq), n)]
 
 
 def last(seq, predicate=None):

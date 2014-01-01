@@ -6,11 +6,11 @@ Members
 =======
 """
 
-import binascii
-import errno
-import fnmatch
-import os
-import tempfile
+import binascii as _binascii
+import errno as _errno
+import fnmatch as _fnmatch
+import os as _os
+import tempfile as _tempfile
 
 
 def crc_from_filename(filename):
@@ -18,30 +18,30 @@ def crc_from_filename(filename):
     with open(filename, 'rb') as f:
         data = f.read()
     # See python docs for reason for &
-    return binascii.crc32(data) & 0xffffffff
+    return _binascii.crc32(data) & 0xffffffff
 
 
 def iter_files(directory, pattern='*'):
     """Returns a generator of files under directory that match pattern."""
-    for root, dirs, files in os.walk(directory):
+    for root, dirs, files in _os.walk(directory):
         for basename in files:
-            if fnmatch.fnmatch(basename, pattern):
-                filename = os.path.join(root, basename)
+            if _fnmatch.fnmatch(basename, pattern):
+                filename = _os.path.join(root, basename)
                 yield filename
 
 
 def listdirex(path, pattern='*.*'):
     """Return absolute filepaths in ``path`` that matches ``pattern``."""
-    return [os.path.join(path, fn) for fn in os.listdir(path)
-            if fnmatch.fnmatch(fn, pattern)]
+    return [_os.path.join(path, fn) for fn in _os.listdir(path)
+            if _fnmatch.fnmatch(fn, pattern)]
 
 
 def makedirs(path, mode=0777):
     """Like ``os.makedirs``, but will not fail if directory exists."""
     try:
-        os.makedirs(path, mode)
+        _os.makedirs(path, mode)
     except OSError as err:
-        if err.errno != errno.EEXIST:
+        if err.errno != _errno.EEXIST:
             raise
     return path
 
@@ -53,7 +53,6 @@ def mktemp(*args, **kwargs):
 
     Args are the same as tempfile.mkstemp
     """
-    handle, filename = tempfile.mkstemp(*args, **kwargs)
-    os.close(handle)
+    handle, filename = _tempfile.mkstemp(*args, **kwargs)
+    _os.close(handle)
     return filename
-
