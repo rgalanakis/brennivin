@@ -10,13 +10,16 @@ This aids in creating version-agnostic test cases.
 
 """
 from __future__ import print_function
-import sys
-import time
+import itertools as _itertools
+import sys as _sys
+import time as _time
 import xml.etree.ElementTree as _elementtree
+
+import mock as _mock
 
 from . import dochelpers as _dochelpers, osutils as _osutils
 
-if sys.version_info < (2, 7):
+if _sys.version_info < (2, 7):
     try:
         # noinspection PyUnresolvedReferences,PyPackageRequirements
         import unittest2 as unittest
@@ -56,6 +59,31 @@ def assertCrcEqual(testcase, calcpath, idealpath, asLib=False):
     testcase.assertEqual(crc1, crc2,
                          'ideal: %(idealpath)s (%(crc2)s) !='
                          ' calc: %(calcpath)s (%(crc1)s)' % locals())
+
+
+def assertTextFilesEqual(testcase, calcpath, idealpath, compareLines=None):
+    """Asserts if the files are not equal. It first compares crcs, and if
+    that fails, it compares the file contents as text (ie, mode 'r' and not
+    'rb'). The reason for this is that there can be discrepancies between
+    newlines.
+
+    :param compareLines: Callable that takes (calculated line, ideal line)
+      and should assert if they are not equal. Defaults to
+      ``testcase.assertEqual(calc line, ideal line)``.
+    """
+    if compareLines is None:
+        def compareLines(linecalc_, lineideal_):
+            testcase.assertEqual(linecalc_.rstrip(), lineideal_.rstrip())
+    try:
+        assertCrcEqual(testcase, calcpath, idealpath, asLib=True)
+        return
+    except AssertionError:
+        pass
+    with open(calcpath) as fcalc:
+        with open(idealpath) as fideal:
+            for linecalc, lineideal in _itertools.izip_longest(
+                    fcalc, fideal, fillvalue=''):
+                compareLines(linecalc, lineideal)
 
 
 def compareXml(x1, x2, reporter=_dochelpers.identity):
@@ -157,6 +185,49 @@ def assertFoldersEqual(
         raise
 
 
+class Patcher(object):
+    """Context manager that stores ``getattr(obj, attrname)``, sets it
+    to ``newvalue`` on enter, and restores it on exit.
+
+    :param newvalue: If _undefined, use a new Mock.
+    """
+    def __init__(self, obj, attrname, newvalue=_dochelpers.default):
+        self.obj = obj
+        self.attrname = attrname
+        if newvalue is _dochelpers.default:
+            newvalue = _mock.Mock()
+        self.newvalue = newvalue
+        self.oldvalue = _dochelpers.default
+        self._entered = False
+
+    def __enter__(self):
+        if self._entered:
+            raise RuntimeError(
+                'Can only enter once, or havoc would occur '
+                '(setting oldvalue to the currently mocked value)')
+        self._entered = True
+        self.oldvalue = getattr(self.obj, self.attrname)
+        setattr(self.obj, self.attrname, self.newvalue)
+        return self
+
+    def __exit__(self, *_):
+        if self.oldvalue != _dochelpers.default:
+            setattr(self.obj, self.attrname, self.oldvalue)
+
+
+def patch(testcase, *args):
+    """
+    Create and enter :class:`Patcher` that will be exited
+    on ``testcase`` teardown.
+
+    :param args: Passed to the ``Patcher``.
+    :return: The monkey patcher's newvalue.
+    """
+    mp = Patcher(*args)
+    testcase.addCleanup(mp.__enter__().__exit__)
+    return mp.newvalue
+
+
 class patch_time(object):
 
     ATTRS = ['clock', 'time', 'sleep']
@@ -167,12 +238,12 @@ class patch_time(object):
         self._now = 0
 
     def __enter__(self):
-        self.old = [(a, getattr(time, a)) for a  in self.ATTRS]
-        [setattr(time, a, getattr(self, a)) for a in self.ATTRS]
+        self.old = [(a, getattr(_time, a)) for a in self.ATTRS]
+        [setattr(_time, a, getattr(self, a)) for a in self.ATTRS]
         return self
 
     def __exit__(self, *_):
-        [setattr(time, a, attr) for (a, attr) in self.old]
+        [setattr(_time, a, attr) for (a, attr) in self.old]
 
     def clock(self):
         return self._now
