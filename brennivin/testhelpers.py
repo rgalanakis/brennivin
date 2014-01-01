@@ -33,6 +33,12 @@ else:
     import unittest
 
 
+def assertBetween(tc, a, b, c, eq=False):
+    le = tc.assertLessEqual if eq else tc.assertLess
+    le(a, b)
+    le(b, c)
+
+
 def assertEqualPretty(testcase, ideal, calculated, msg=None):
     """Prints ideal and calculated on two lines, for easier analysis of
     what's different.  Useful for sequences.
