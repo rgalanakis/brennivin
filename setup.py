@@ -1,12 +1,6 @@
 from setuptools import find_packages, setup
 
-version_info = 0, 0, 1
-version = '.'.join([str(v) for v in version_info])
-__version__ = version
-__author__ = 'Rob Galanakis'
-__email__ = 'rob.galanakis@gmail.com'
-__url__ = 'https://github.com/rgalanakis/brennivin'
-__license__ = 'MIT'
+from brennivin import version, __author__, __email__, __license__, __url__
 
 setup(
     name='brennivin',
@@ -27,7 +21,7 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
-        # 'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3',
     ],
     install_requires=[]
 )
