@@ -7,6 +7,7 @@ Members
 """
 
 import binascii
+import errno
 import fnmatch
 import os
 
@@ -32,3 +33,13 @@ def listdirex(path, pattern='*.*'):
     """Return absolute filepaths in ``path`` that matches ``pattern``."""
     return [os.path.join(path, fn) for fn in os.listdir(path)
             if fnmatch.fnmatch(fn, pattern)]
+
+
+def makedirs(path, mode=0777):
+    """Like ``os.makedirs``, but will not fail if directory exists."""
+    try:
+        os.makedirs(path, mode)
+    except IOError as err:
+        if err.errno == errno.EEXIST:
+            return
+        raise
