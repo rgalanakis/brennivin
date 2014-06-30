@@ -1,6 +1,8 @@
 import datetime
 import unittest
 
+import mock
+
 from brennivin import itertoolsext as it
 
 
@@ -457,5 +459,35 @@ class TestDictAdd(unittest.TestCase):
         self.assertEqual(dict_a, {101: 1010,
                                   202: 202,
                                   '303': 9090,
-                                  (4,0,4): 16160,
+                                  (4, 0, 4): 16160,
                                   505: 50})
+
+
+class TestShuffle(unittest.TestCase):
+
+    def testWithNone(self):
+        """Test that Shuffle raises if collection is None."""
+        self.assertRaises(TypeError, it.shuffle, None)
+
+    def testReturnsCopy(self):
+        """Test that Shuffle returns a copy,
+        even if passed an empty or single item collection."""
+        li = []
+        self.assertNotEqual(id(it.shuffle(li)), id(li))
+        li.append(1)
+        self.assertNotEqual(id(it.shuffle(li)), id(li))
+
+    def testShuffles(self):
+        """Test that Shuffle actually shuffles."""
+        li = range(0, 50)
+        self.assertNotEqual(it.shuffle(li), li)
+        self.assertNotEqual(it.shuffle(li), li)
+        self.assertNotEqual(it.shuffle(li), li)
+        self.assertNotEqual(it.shuffle(li), li)
+        self.assertNotEqual(it.shuffle(li), li)
+        self.assertNotEqual(it.shuffle(li), li)
+
+    def testMaxAttemptsRaises(self):
+        items = [1, 2, 3]
+        with mock.patch('random.shuffle', mock.Mock(return_value=items)):
+            self.assertRaises(AssertionError, it.shuffle, items, 1)

@@ -10,6 +10,7 @@ import binascii as _binascii
 import errno as _errno
 import fnmatch as _fnmatch
 import os as _os
+import stat as _stat
 import tempfile as _tempfile
 
 
@@ -56,3 +57,12 @@ def mktemp(*args, **kwargs):
     handle, filename = _tempfile.mkstemp(*args, **kwargs)
     _os.close(handle)
     return filename
+
+
+def set_readonly(path, state):
+    if state:
+        # Make it read-only
+        _os.chmod(path, _stat.S_IREAD)
+    else:
+        # Make it writeable
+        _os.chmod(path, _stat.S_IWRITE)

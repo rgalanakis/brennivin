@@ -11,6 +11,7 @@ This aids in creating version-agnostic test cases.
 """
 from __future__ import print_function
 import itertools as _itertools
+import os as _os
 import sys as _sys
 import time as _time
 import xml.etree.ElementTree as _elementtree
@@ -37,6 +38,29 @@ def assertBetween(tc, a, b, c, eq=False):
     le = tc.assertLessEqual if eq else tc.assertLess
     le(a, b)
     le(b, c)
+
+
+def assertNumbersEqual(testcase, a, b, tolerance=0, msg=None):
+    """Asserts if the sizes are not within ``tolerance``."""
+    if abs(a - b) <= tolerance:
+        return
+    testcase.assertEqual(a, b, msg=msg)
+
+
+def assertNumberSequencesEqual(testcase, a, b, tolerance=0):
+    """Assert that for an element in sequence ``a`` the
+    corresponding element in ``b`` is equal within ``tolerance``.
+
+    Also assert if the two sequences are not the same length.
+    """
+    msg = 'Sequence length mismatch, a: %s, b: %s' % (a, b)
+    testcase.assertEqual(len(a), len(b), msg)
+    for i, pair in enumerate(zip(a, b)):
+        element_a, element_b = pair
+        try:
+            assertNumbersEqual(testcase, element_a, element_b, tolerance)
+        except AssertionError:
+            raise AssertionError("%s != %s (element %s)" % (a, b, i))
 
 
 def assertEqualPretty(testcase, ideal, calculated, msg=None):
@@ -203,6 +227,15 @@ def assertFoldersEqual(
         raise
 
 
+def assertPermissionbitsEqual(
+        testcase, calcpath, idealpath,
+        bitgetter=_dochelpers.pretty_func(lambda p: _os.stat(p)[0], 'os.stat(<path>)[0]')):
+    """Asserts if permission bits are not equal."""
+    stat1 = bitgetter(calcpath)
+    stat2 = bitgetter(idealpath)
+    testcase.assertEqual(stat1, stat2)
+
+
 class Patcher(object):
     """Context manager that stores ``getattr(obj, attrname)``, sets it
     to ``newvalue`` on enter, and restores it on exit.
@@ -271,3 +304,33 @@ class patch_time(object):
 
     def sleep(self, sec):
         self._now += sec
+
+
+class CallCounter(object):
+    """
+    Counts the number of times the instance is called.
+    Available via the ``count`` attribute.
+
+    Generally you should not create this class directly,
+    and use the ``no_params`` and ``all_params`` class methods.
+    Use the former when calling this should take no arguments,
+    and the latter when it should take any arguments.
+    """
+    def __init__(self, call):
+        self.count = 0
+        self._call = call
+
+    def incr(self):
+        self.count += 1
+        return self.count
+
+    def __call__(self, *args, **kwargs):
+        return self._call(self, *args, **kwargs)
+
+    @classmethod
+    def no_params(cls):
+        return CallCounter(lambda c: c.incr())
+
+    @classmethod
+    def all_params(cls):
+        return CallCounter(lambda c, *args, **kwargs: c.incr())

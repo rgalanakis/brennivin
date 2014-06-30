@@ -1,6 +1,7 @@
 import inspect
 import os
 import shutil
+import stat
 import tempfile
 import unittest
 
@@ -60,3 +61,28 @@ class MakeDirsTests(unittest.TestCase):
         self.assertFalse(os.path.isdir(newd))
         osutils.makedirs(newd)
         self.assertTrue(os.path.isdir(newd))
+
+
+class TestReadOnly(unittest.TestCase):
+
+    def setUp(self):
+        self.writeable = osutils.mktemp()
+        self.readonly = osutils.mktemp()
+        os.chmod(self.readonly, stat.S_IREAD)
+
+    def tearDown(self):
+        def safeRemove(path):
+            os.chmod(path, stat.S_IWRITE)
+            os.remove(path)
+        safeRemove(self.readonly)
+        safeRemove(self.writeable)
+
+    def testSetReadOnlyTrue(self):
+        """Test that a writeable file can be made read only."""
+        osutils.set_readonly(self.writeable, True)
+        self.assertFalse(os.access(self.writeable, os.W_OK))
+
+    def testSetReadOnlyFalse(self):
+        """Test that a readonly file can be made writeable."""
+        osutils.set_readonly(self.readonly, False)
+        self.assertTrue(os.access(self.readonly, os.W_OK))

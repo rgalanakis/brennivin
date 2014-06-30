@@ -25,6 +25,7 @@ Members
 
 import datetime as _datetime
 from itertools import *
+import random as _random
 
 from .dochelpers import identity as _identity, default as _unsupplied
 
@@ -497,3 +498,23 @@ def dict_add(alpha, beta, adder_function=None):
             alpha[key] = adder_function(alpha[key], beta[key])
         else:
             alpha[key] = beta[key]
+
+
+def shuffle(col, maxattempts=5):
+    """Return a new shuffled collection and ensure it is shuffled.
+    A regular random.shuffle could return the same as
+    the input for small sequences.
+
+    Asserts after more than maxattempts at shuffle have been made.
+    """
+    ret = list(col)
+    if not ret or len(ret) == 1:
+        return ret
+    attempts = 0
+    while True:
+        _random.shuffle(ret)
+        if col != ret:
+            return ret
+        attempts += 1
+        if attempts > maxattempts:
+            raise AssertionError("Could not get a shuffle in %s attempts." % maxattempts)
