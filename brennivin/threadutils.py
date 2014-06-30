@@ -248,8 +248,7 @@ class NotAThread(_threading.Thread):
             raise RuntimeError("cannot join thread before it is started")
 
 
-# noinspection PyProtectedMember
-class TimerExt(_threading._Timer):
+class TimerExt(_compat.TimerCls):
     """Extends the interface of :class:`threading.Timer` to allow for a
     :meth:`restart` method, which will restart the timer. May be extended in
     other ways in the future.
@@ -264,7 +263,7 @@ class TimerExt(_threading._Timer):
             raise ValueError('interval must be > 0, got %s' % interval)
         if function is None:
             raise ValueError('function cannot be None.')
-        _threading._Timer.__init__(self, interval, function, args, kwargs or {})
+        _compat.TimerCls.__init__(self, interval, function, args, kwargs or {})
         self._lock = _threading.Lock()
         self._restartRequested = False
         self.name = 'TimerExtThread'
