@@ -1,14 +1,14 @@
+import cPickle
 import json
 import mock
 import os
 import tempfile
 import unittest
-import yaml
 
 from brennivin import osutils, preferences
 
 
-class TestPreferences(unittest.TestCase):
+class PreferencesTests(unittest.TestCase):
     prefstype = preferences.Preferences
 
     def create(self, *args, **kwargs):
@@ -22,32 +22,6 @@ class TestPreferences(unittest.TestCase):
         self.assertFalse(os.path.exists(prefdir))
         self.create(os.path.join(prefdir, 'prefs.prefs'))
         self.assertTrue(os.path.exists(prefdir))
-
-    def testUsesCustomPicklers(self):
-        """Test that custom loader/dumper is used when reading/writing."""
-        load, save = mock.Mock(), mock.Mock()
-        p = self.create(osutils.mktemp(), save, load)
-        self.assertEqual(1, load.call_count)
-        p.save()
-        self.assertEqual(1, save.call_count)
-
-    def _testDefaultPickler(self, module):
-        loadorig, dumporig = module.load, module.dump
-        module.load = mock.Mock()
-        module.dump = mock.Mock()
-        try:
-            p = self.create(osutils.mktemp())
-            p.save()
-            self.assertEqual(1, module.load.call_count)
-            self.assertEqual(1, module.dump.call_count)
-        finally:
-            module.load = loadorig
-            module.dump = dumporig
-
-    def testDefaultPickler(self):
-        """Test that json is used as the default loader/dumper.
-        If a subclass uses a different one, override this."""
-        self._testDefaultPickler(json)
 
     def testWorking(self):
         """Runs of a battery of gets and sets that should all work."""
@@ -73,8 +47,8 @@ class TestPreferences(unittest.TestCase):
         contain a dictionary."""
         fn = osutils.mktemp()
         with open(fn, 'w') as f:
-            f.write('abcd')
-        p = self.create(fn, yaml.dump, yaml.load)
+            f.write('abcd!!!~')
+        p = self.create(fn)
         self.assertEqual(7, p.setdefault('test', 'test', 7))
         self.assertEqual(7, p.get('test', 'test', 0))
 
@@ -82,3 +56,20 @@ class TestPreferences(unittest.TestCase):
         # Invoke one of the 'invalid' tests and ensure onerror was called.
         p = self.testCorruptData()
         self.assertEqual(p.onloaderror.call_count, 1)
+
+
+class CPicklePrefs(preferences.Preferences):
+    dumper = cPickle.dump
+    loader = cPickle.load
+
+
+class CPicklePrefsTests(PreferencesTests):
+    prefstype = CPicklePrefs
+
+    def testIsNotJsonAndIsCPickle(self):
+        p = self.create(osutils.mktemp())
+        p.set('hi', 'there', 'you')
+        with open(p.filename) as f:
+            self.assertRaises(ValueError, json.load, f)
+        with open(p.filename) as f:
+            cPickle.load(f)

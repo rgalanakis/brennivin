@@ -27,34 +27,30 @@ class Preferences(object):
 
     :param filename: The filename where preferences will be saved.
       Directories will be created automatically on init if they do not exist.
-    :param dump: dump(object, file) should serialize object out to the file.
-      Examples are yaml.dump, json.dump, pickle.dump, etc.
-    :param load: load(file) should return a preferences object.
-      Examples are yaml.load, json.load, pickle.load, etc.
     :param onloaderror: If provided, invoke this function in the case
       of an error on Load. If None, just log out that an error occured.
       Errors on Save will still be raised, of course.
 
-    We allow these to be passed in explicitly so they can support
-    non-standard args (such as protocol on pickle, encoder on json, etc.).
+    Override the :meth:`loader` and :meth:`dumper` methods to use
+    a serializaer other than json.
     """
 
-    def __init__(self, filename, dump=None, load=None, onloaderror=None):
+    def __init__(self, filename, onloaderror=None):
 
         directory = os.path.dirname(filename)
         if not os.path.exists(directory):
             os.makedirs(directory)
 
-        if dump is None:
-            dump = json.dump
-        self.pickleDump = dump
-        if load is None:
-            load = json.load
-        self.pickleLoad = load
         self.prefs = {}
         self.filename = filename
         self.onloaderror = onloaderror
-        self.Load()
+        self.load()
+
+    def loader(self, fp):
+        return json.load(fp)
+
+    def dumper(self, obj, fp):
+        return json.dump(obj, fp)
 
     def get(self, region, variable, defaultValue):
         """Get a preference value from the pickled data.
@@ -67,7 +63,6 @@ class Preferences(object):
             return self.prefs[region][variable]
         except KeyError:
             return defaultValue
-    GetValue = get
 
     def set(self, region, variable, value):
         """Register a value to be stored in a cPickle file.
@@ -79,26 +74,23 @@ class Preferences(object):
         if not region in self.prefs:
             self.prefs[region] = {}
         self.prefs[region][variable] = value
-        self.Save()
-    SetValue = set
+        self.save()
 
     def setdefault(self, region, variable, defaultValue):
         """If :meth:`get` ``(region, variable)`` is not set, performs a
         :meth:`set` ``(region, variable, defaultValue)`` and returns ``defaultValue``.
         """
         sentinel = object()
-        result = self.GetValue(region, variable, sentinel)
+        result = self.get(region, variable, sentinel)
         if result == sentinel:
             result = defaultValue
-            self.SetValue(region, variable, result)
+            self.set(region, variable, result)
         return result
-    GetOrSet = setdefault
-        
+
     def save(self):
         """Save the internal data in a pickle file."""
         with open(self.filename, 'wb') as f:
-            self.pickleDump(self.prefs, f)
-    Save = save
+            self.dumper(self.prefs, f)
 
     def load(self):
         """Load a pickled file into the local prefs dict.  If the data in the
@@ -106,7 +98,7 @@ class Preferences(object):
         try:
             if os.path.isfile(self.filename):
                 with open(self.filename, 'rb') as f:
-                    self.prefs = self.pickleLoad(f)
+                    self.prefs = self.loader(f)
         except Exception:
             if self.onloaderror:
                 self.onloaderror(*sys.exc_info())
@@ -114,4 +106,3 @@ class Preferences(object):
                 logger.error(traceback.format_exc())
         if not isinstance(self.prefs, dict):
             self.prefs = {}
-    Load = load
