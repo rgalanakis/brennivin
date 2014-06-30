@@ -237,14 +237,15 @@ class NotAThread(_threading.Thread):
     a program without threading.
     """
     exc_info = None
-    _started = False
+    # _started is an attr in python3 threading.Thread
+    _started_nota = False
 
     def start(self):
-        self._started = True
+        self._started_nota = True
         self.run()
 
     def join(self, timeout=None):
-        if not self._started:
+        if not self._started_nota:
             raise RuntimeError("cannot join thread before it is started")
 
 

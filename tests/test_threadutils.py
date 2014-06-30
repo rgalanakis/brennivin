@@ -413,8 +413,8 @@ class TestMemoize(unittest.TestCase):
             self.assertEqual(self.enteredLockCnt, numthreads)
             li.append(0)
         threads = [threading.Thread(target=testit) for _ in range(numthreads)]
-        map(threading.Thread.start, threads)
-        map(threading.Thread.join, threads)
+        list(map(threading.Thread.start, threads))
+        list(map(threading.Thread.join, threads))
         self.assertEqual([0], li)
 
 
