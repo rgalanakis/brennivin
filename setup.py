@@ -7,10 +7,12 @@ setup(
     version=version,
     author=__author__,
     author_email=__email__,
-    description="TBD",
+    description="A set of utilities and helpers that are unit and production "
+                "tested for both correctness and usefulness.",
     long_description=open('README.rst').read(),
     license=__license__,
-    keywords='TBD TBD',
+    keywords='utility kitchen sink library tools utilities library helpers '
+             'extensions doodads',
     url=__url__,
     packages=find_packages(),
     classifiers=[
