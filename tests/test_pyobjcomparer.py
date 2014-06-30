@@ -96,7 +96,7 @@ class TestComparer(unittest.TestCase):
         self.assertCompare(sphere(), sphere(), sphere(radius=0.0))
 
     def testTypeEq(self):
-        self.assertCompare(int, int, _compat.long)
+        self.assertCompare(int, int, str)
 
     def testMatrix(self):
         a = (257276184,
