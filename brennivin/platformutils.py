@@ -13,6 +13,11 @@ import os as _os
 import struct as _struct
 import sys as _sys
 
+try:
+    import multiprocessing as _multiprocessing
+except ImportError:
+    _multiprocessing = None
+
 from .dochelpers import ignore as _ignore
 
 EXE_MAYA = 'Maya Python'
@@ -74,3 +79,22 @@ def is_64bit_process(_structmod=_ignore):
     elif size == 4:
         return False
     raise OSError('Could not determine process architecture for %s' % size)
+
+
+def cpu_count(_multiprocmod=_ignore):
+    """ Number of virtual or physical CPUs on this system."""
+    _multiprocmod = _multiprocmod or _multiprocessing
+    if _multiprocessing:
+        try:
+            return _multiprocmod.cpu_count()
+        except (NotImplementedError, AttributeError):
+            pass
+
+    # Will only work on Windows but whatevs
+    try:
+        res = int(_os.environ['NUMBER_OF_PROCESSORS'])
+        if res > 0:
+            return res
+    except (KeyError, ValueError):
+        pass
+    raise SystemError('Number of processors could not be determined.')

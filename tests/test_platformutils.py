@@ -1,7 +1,7 @@
 import mock
 import unittest
 
-from brennivin import platformutils as pu
+from brennivin import osutils as ou, platformutils as pu, testhelpers as th
 
 
 class TestGetInterpreterFlavorPurepython(unittest.TestCase):
@@ -58,3 +58,25 @@ class Test64BitProc(unittest.TestCase):
         """Tests an OSError is raised for unknown struct size."""
         self.assertRaises(OSError, pu.is_64bit_process, self.makestruct(16))
         self.assertRaises(OSError, pu.is_64bit_process, self.makestruct(2))
+
+
+class TestNumberOfCPUs(unittest.TestCase):
+    """Tests for NumberOfCPUs. The tests assume something about the
+    implementation, which is usually not good, but otherwise we'd
+    get very poor coverage and not be able to test our fallbacks."""
+
+    def testWithMultiprocessing(self):
+        """Tests that multiprocessing.cpu_count is used."""
+        with mock.patch('multiprocessing.cpu_count', lambda: 11):
+            self.assertEqual(11, pu.cpu_count())
+
+    def testNoMultiproc(self):
+        """Tests that NUMBER_OF_PROCESSORS is used."""
+        with ou.change_environ('NUMBER_OF_PROCESSORS', '13'):
+            self.assertEqual(13, pu.cpu_count(object()))
+
+    def testUnknownRaises(self):
+        """Tests that a SystemError will be raised if the cpu count
+        is indeterminable."""
+        with ou.change_environ('NUMBER_OF_PROCESSORS', None):
+            self.assertRaises(SystemError, pu.cpu_count, object())
