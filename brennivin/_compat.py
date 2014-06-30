@@ -10,8 +10,12 @@ if sys.version_info[0] > 2:
     # noinspection PyShadowingBuiltins
     long = int
     StringTypes = (str,)
+    def reraise(e, v, tb):
+        raise e(v).with_traceback(tb)
 else:
     PY3K = False
     # noinspection PyShadowingBuiltins
     long = long
     from types import StringTypes
+    exec("""def reraise(e, v, tb):
+    raise e, v, tb""")

@@ -34,7 +34,7 @@ import threading as _threading
 import time as _time
 import traceback as _traceback
 
-from . import dochelpers as _dochelpers
+from . import _compat, dochelpers as _dochelpers
 
 
 class ChunkIter(object):
@@ -228,7 +228,7 @@ class ExceptionalThread(_threading.Thread):
     def join(self, timeout=None):
         _threading.Thread.join(self, timeout)
         if self.exc_info:
-            raise self.exc_info[0], self.exc_info[1], self.exc_info[2]
+            _compat.reraise(self.exc_info[0], self.exc_info[1], self.exc_info[2])
 
 
 class NotAThread(_threading.Thread):
