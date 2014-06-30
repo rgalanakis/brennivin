@@ -35,6 +35,19 @@ else:
     import unittest
 
 
+class FakeTestCase(unittest.TestCase):
+    """
+    Sometimes, you want to use one of the assertion methods in this module,
+    but don't have a testcase.
+    You can just use an instance of this.
+    """
+    def __init__(self):
+        unittest.TestCase.__init__(self, '_ignoreme')
+
+    def _ignoreme(self):
+        pass
+
+
 def assertBetween(tc, a, b, c, eq=False):
     le = tc.assertLessEqual if eq else tc.assertLess
     le(a, b)
