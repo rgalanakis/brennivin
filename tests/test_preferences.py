@@ -60,6 +60,9 @@ class PreferencesTests(unittest.TestCase):
 
 class PicklePrefs(preferences.Preferences):
 
+    def openmode(self):
+        return 'b'
+
     def dumper(self, obj, fp):
         return pickle.dump(obj, fp)
 
@@ -73,7 +76,7 @@ class PicklePrefsTests(PreferencesTests):
     def testIsNotJsonAndIsCPickle(self):
         p = self.create(osutils.mktemp())
         p.set('hi', 'there', 'you')
-        with open(p.filename) as f:
+        with open(p.filename, 'r') as f:
             self.assertRaises(ValueError, json.load, f)
-        with open(p.filename) as f:
+        with open(p.filename, 'rb') as f:
             pickle.load(f)

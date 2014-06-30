@@ -31,8 +31,8 @@ class Preferences(object):
       of an error on Load. If None, just log out that an error occured.
       Errors on Save will still be raised, of course.
 
-    Override the :meth:`loader` and :meth:`dumper` methods to use
-    a serializaer other than json.
+    Override the :meth:`loader`, :meth:`dumper`, and :meth:`openmode`
+    methods to use a serializaer other than json.
     """
 
     def __init__(self, filename, onloaderror=None):
@@ -47,10 +47,16 @@ class Preferences(object):
         self.load()
 
     def loader(self, fp):
+        """Like ``json.load(fp)``"""
         return json.load(fp)
 
     def dumper(self, obj, fp):
+        """Like ``json.dump(obj, fp)``"""
         return json.dump(obj, fp)
+
+    def openmode(self):
+        """'t' or 'b' indicating the way to open the persisted file."""
+        return 't'
 
     def get(self, region, variable, defaultValue):
         """Get a preference value from the pickled data.
@@ -89,7 +95,7 @@ class Preferences(object):
 
     def save(self):
         """Save the internal data in a pickle file."""
-        with open(self.filename, 'wb') as f:
+        with open(self.filename, 'w' + self.openmode()) as f:
             self.dumper(self.prefs, f)
 
     def load(self):
@@ -97,7 +103,7 @@ class Preferences(object):
         file is not a dict, reset all prefs to be a dict."""
         try:
             if os.path.isfile(self.filename):
-                with open(self.filename, 'rb') as f:
+                with open(self.filename, 'r' + self.openmode()) as f:
                     self.prefs = self.loader(f)
         except Exception:
             if self.onloaderror:
