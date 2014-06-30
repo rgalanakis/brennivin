@@ -46,7 +46,7 @@ def format(num, precision):
                 result = adigit + '.' + result
             else:
                 result = adigit + result
-            digits /= 10
+            digits //= 10
             curpow += 1
         for i in range(curpow, 0):
             if (i % 3) == 0 and i != 0:

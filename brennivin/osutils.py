@@ -37,7 +37,7 @@ def listdirex(path, pattern='*.*'):
             if _fnmatch.fnmatch(fn, pattern)]
 
 
-def makedirs(path, mode=0777):
+def makedirs(path, mode=0o777):
     """Like ``os.makedirs``, but will not fail if directory exists."""
     try:
         _os.makedirs(path, mode)
