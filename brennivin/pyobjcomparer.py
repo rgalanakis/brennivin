@@ -16,6 +16,8 @@ Members
 """
 from pprint import pformat as _pformat
 
+from . import _compat
+
 
 TOLERANCE = 0.0001
 
@@ -75,7 +77,7 @@ def _compare_dict(a, b, breadcrumb):
 
 MAP = {int: _compare_number,
        str: _compare_default,
-       long: _compare_number,
+       _compat.long: _compare_number,
        set: _compare_set,
        list: _compare_list,
        tuple: _compare_tuple,

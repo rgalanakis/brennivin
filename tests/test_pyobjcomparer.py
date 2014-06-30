@@ -1,5 +1,7 @@
 import unittest
 
+# noinspection PyProtectedMember
+from brennivin import _compat
 from brennivin.pyobjcomparer import compare, get_compound_diff, assert_compare
 
 
@@ -94,7 +96,7 @@ class TestComparer(unittest.TestCase):
         self.assertCompare(sphere(), sphere(), sphere(radius=0.0))
 
     def testTypeEq(self):
-        self.assertCompare(int, int, long)
+        self.assertCompare(int, int, _compat.long)
 
     def testMatrix(self):
         a = (257276184,

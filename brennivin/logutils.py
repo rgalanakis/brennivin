@@ -137,10 +137,9 @@ def get_filenames_from_loggers(loggers=None, _loggingmodule=None):
     use all loggers from :mod:`logging` module.
     """
     _loggingmodule = _loggingmodule or _logging
-    # noinspection PyUnresolvedReferences
-    loggers = loggers or (
-        _loggingmodule.Logger.manager.loggerDict.values() +
-        [_loggingmodule.root])
+    if loggers is None:
+        loggers = [_loggingmodule.root]
+        loggers.extend(_loggingmodule.Logger.manager.loggerDict.values())
     allfilenames = set()
     # Placeholders can be in the logger so limit it to
     # only loggers who have handlers.

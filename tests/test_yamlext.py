@@ -1,7 +1,10 @@
 import atexit
 import mock
 import os
-import StringIO
+try:
+    import StringIO
+except ImportError:
+    import io as StringIO
 import unittest
 import yaml
 

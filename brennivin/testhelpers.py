@@ -19,6 +19,7 @@ import xml.etree.ElementTree as _elementtree
 import mock as _mock
 
 from . import (
+    _compat,
     dochelpers as _dochelpers,
     osutils as _osutils,
     zipfileutils as _zipfileutils)
@@ -178,9 +179,9 @@ def assertXmlEqual(a, b):
     :type a: (basestring, xml.etree.ElementTree.Element)
     :type b: (basestring, xml.etree.ElementTree.Element)
     """
-    if isinstance(a, basestring):
+    if isinstance(a, _compat.StringTypes):
         a = _elementtree.fromstring(a)
-    if isinstance(b, basestring):
+    if isinstance(b, _compat.StringTypes):
         b = _elementtree.fromstring(b)
     diffs = []
     if not compareXml(a, b, diffs.append):
