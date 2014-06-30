@@ -62,6 +62,10 @@ class _Sentinel(object):
     def __nonzero__(self):
         return self.nonzero
 
+    def __bool__(self):
+        return self.nonzero
+
+
 default = _Sentinel('DEFAULT', True)
 unsupplied = _Sentinel('DEFAULT', True)
 ignore = _Sentinel('<IGNORE>', False)
