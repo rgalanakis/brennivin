@@ -1,7 +1,7 @@
-import cPickle
 import json
 import mock
 import os
+import pickle
 import tempfile
 import unittest
 
@@ -58,13 +58,17 @@ class PreferencesTests(unittest.TestCase):
         self.assertEqual(p.onloaderror.call_count, 1)
 
 
-class CPicklePrefs(preferences.Preferences):
-    dumper = cPickle.dump
-    loader = cPickle.load
+class PicklePrefs(preferences.Preferences):
+
+    def dumper(self, obj, fp):
+        return pickle.dump(obj, fp)
+
+    def loader(self, fp):
+        return pickle.load(fp)
 
 
-class CPicklePrefsTests(PreferencesTests):
-    prefstype = CPicklePrefs
+class PicklePrefsTests(PreferencesTests):
+    prefstype = PicklePrefs
 
     def testIsNotJsonAndIsCPickle(self):
         p = self.create(osutils.mktemp())
@@ -72,4 +76,4 @@ class CPicklePrefsTests(PreferencesTests):
         with open(p.filename) as f:
             self.assertRaises(ValueError, json.load, f)
         with open(p.filename) as f:
-            cPickle.load(f)
+            pickle.load(f)
