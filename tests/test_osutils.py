@@ -10,6 +10,17 @@ from brennivin import osutils
 THISDIR = os.path.dirname(os.path.abspath(__file__))
 
 
+class CrcFromFilenameTests(unittest.TestCase):
+
+    def testKnown(self):
+        # Will this fail on other OSes?
+        f = osutils.mktemp()
+        self.assertEqual(osutils.crc_from_filename(f), 0)
+        with open(f, 'w') as fd:
+            fd.write('hello')
+        self.assertEqual(osutils.crc_from_filename(f), 907060870)
+
+
 class IterFilesTests(unittest.TestCase):
 
     def testReturnsGenerator(self):
