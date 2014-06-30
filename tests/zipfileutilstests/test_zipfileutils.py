@@ -1,10 +1,11 @@
 import os
 import shutil
+import sys
 import tempfile
 import unittest
 import zipfile
 
-from brennivin import testhelpers, zipfileutils as zu
+from brennivin import osutils, testhelpers, zipfileutils as zu
 
 
 THISDIR = os.path.dirname(__file__)
@@ -46,3 +47,56 @@ class ZipFileUtilsTests(unittest.TestCase):
     def testIsInsideZipfile(self):
         test_path = os.path.join(IDEAL_ALL, "testdir", "testfile.txt")
         self.assertTrue(zu.is_inside_zipfile(test_path))
+
+
+class TestCompareZipFiles(unittest.TestCase):
+
+    def setUp(self):
+        self.tempd = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self.tempd)
+
+    def createZip(self, files=(('dir1/file1.txt', 'abc'),)):
+        path = osutils.mktemp('.zip', dir=self.tempd)
+        with zu.ZipFile(path, 'w') as z:
+            for fpath, fstr in files:
+                z.writestr(fpath, fstr)
+        return path
+
+    def assertAssertsWithMsg(self, z1, z2, msg):
+        try:
+            zu.compare_zip_files(z1, z2)
+            self.fail('Should  have raised')
+        except zu.FileComparisonError as ex:
+            self.assertEqual(ex.args[0], msg)
+
+    def testEqualZips(self):
+        f1 = self.createZip()
+        f2 = self.createZip()
+        zu.compare_zip_files(f1, f2)
+
+    def testDifferentFileContentsRaise(self):
+        f1 = self.createZip([['f1.txt', '1']])
+        f2 = self.createZip([['f1.txt', '2']])
+        self.assertAssertsWithMsg(f1, f2, 'f1.txt CRCs different.')
+
+    def testDifferentNumFilesRaise(self):
+        f1 = self.createZip([['f1.txt', '1'], ['f2.txt', '1']])
+        f2 = self.createZip([['f1.txt', '1']])
+        self.assertAssertsWithMsg(
+            f1, f2, "File lists differ: ['f1.txt', 'f2.txt'], ['f1.txt']")
+
+    def testDifferentFileCasesRaise(self):
+        f1 = self.createZip([['f.txt', '1']])
+        f2 = self.createZip([['F.TXT', '1']])
+        self.assertAssertsWithMsg(
+            f1, f2, "File lists differ: ['f.txt'], ['F.TXT']")
+
+    def testEmptyFilesBehavior(self):
+        # Behavior changed in 2.7 series, not sure exactly what version
+        # (2.7.0 is in shared_tools, 2.7.3 in CCP interpreter
+        docompare = lambda: zu.compare_zip_files(self.createZip([]), self.createZip([]))
+        if sys.version_info < (2, 7, 2):
+            with self.assertRaises(zipfile.BadZipfile):
+                docompare()
+        else:
+            docompare()
