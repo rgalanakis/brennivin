@@ -27,7 +27,11 @@ import datetime as _datetime
 from itertools import *
 import random as _random
 
+from . import _compat
 from .dochelpers import identity as _identity, default as _unsupplied
+
+if _compat.PY3K:
+    ifilter = filter
 
 
 class Bundle(dict):
@@ -69,7 +73,7 @@ class FrozenDict(dict):
         if not hasattr(self, '_hash'):
             # noinspection PyAttributeOutsideInit
             self._hash = 0
-            for pair in self.iteritems():
+            for pair in self.items():
                 self._hash ^= hash(pair)
         return self._hash
 
@@ -172,9 +176,9 @@ def first(seq, predicate=None):
     Raises StopIteration if no item is found.
     """
     if predicate is None:
-        return islice(seq, 1).next()
+        return next(islice(seq, 1))
     filtered = ifilter(predicate, seq)
-    return filtered.next()
+    return next(filtered)
 
 
 def first_or_default(seq, predicate=None, default=None):
@@ -279,7 +283,7 @@ def single(seq):
     # raise ourselves since seq should only have one item.
     iterator = iter(seq)
     try:
-        result = iterator.next()
+        result = next(iterator)
     except StopIteration:
         # In MayaGUI, it has SUPER strange behavior
         # (not reproducible in mayabatch) where the StopIteration
@@ -290,7 +294,7 @@ def single(seq):
         # Catching and reraising gets around this.
         raise
     try:
-        iterator.next()
+        next(iterator)
     except StopIteration:
         return result
     raise StopIteration('Sequence has more than one item.')
@@ -310,7 +314,7 @@ def skip(sequence, number):
 
 def take(seq, number, predicate=None):
     """Returns a list with len <= number from items in seq."""
-    if not isinstance(number, (int, float, long)):
+    if not isinstance(number, (int, float, _compat.long)):
         raise TypeError('number arg must be a number type.')
     yieldedcount = 0
     for item in seq:

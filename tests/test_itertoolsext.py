@@ -43,13 +43,13 @@ class TestAll(unittest.TestCase):
     def testWithPredicate(self):
         isstr = lambda s: isinstance(s, str)
         self.assertTrue(it.all(['', 'a', 'abC'], isstr))
-        self.assertFalse(it.any([False, None, True, 0L, 0.0], isstr))
+        self.assertFalse(it.any([False, None, True, 0, 0.0], isstr))
 
 
 class TestAny(unittest.TestCase):
     def testNoPredicate(self):
         self.assertTrue(it.any([False, 0, 1]))
-        self.assertFalse(it.any([False, None, '', 0, 0L, 0.0]))
+        self.assertFalse(it.any([False, None, '', 0, 0.0]))
 
     def testWithPredicate(self):
         isstr = lambda s: isinstance(s, str)
@@ -123,13 +123,13 @@ class TestFlatmap(unittest.TestCase):
         iterables raises a TypeError."""
         data = [1, 2]
         iterator = it.flatmap(lambda e: e, data)
-        self.assertRaises(TypeError, iterator.next)
+        self.assertRaises(TypeError, next, iterator)
 
     def testFlatmapWithNone(self):
         """Test that calling Flatmap with function as None results a
         TypeError."""
         result = it.flatmap(None, [1, 2, 3])
-        self.assertRaises(TypeError, result.next)
+        self.assertRaises(TypeError, next, result)
 
 
 class TestGroupBy(unittest.TestCase):
@@ -193,8 +193,8 @@ class TestSingle(unittest.TestCase):
 
 class TestSkip(unittest.TestCase):
     def testSkips(self):
-        res = list(it.skip(xrange(20), 10))
-        self.assertEqual(range(10, 20), res)
+        res = list(it.skip(range(20), 10))
+        self.assertEqual(list(range(10, 20)), res)
 
     def testCountExceedsLength(self):
         """Tests that a skip number higher than the length of the enumerable
@@ -203,7 +203,7 @@ class TestSkip(unittest.TestCase):
         self.assertFalse(res)
 
     def testBehavesSameAsSlice(self):
-        enum = range(10)
+        enum = list(range(10))
         res = list(it.skip(enum, 5))
         sliced = enum[5:]
         self.assertEqual(res, sliced)
@@ -214,7 +214,7 @@ class TestTake(unittest.TestCase):
         return list(it.take(*args, **kwargs))
 
     def testIsGenerator(self):
-        self.assertTrue(hasattr(it.take([1], 1), 'next'))
+        self.assertNotIsInstance(it.take([1], 1), (list, tuple))
 
     def testAll(self):
         self.assertEqual([2, 5], self.t([2, 5, 1, 3], 2))
