@@ -158,7 +158,7 @@ class TestRemoveFiles(unittest.TestCase):
 
     def testIfMaxFilesIsNegativeRaisesValueError(self):
         self.assertRaises(
-            ValueError, logutils.remove_old_files, self.root, maxFiles=-1)
+            ValueError, logutils.remove_old_files, self.root, maxfiles=-1)
 
     def testIfLessThanMaxFilesNoFilesAreDelete(self):
         f1, f2 = self.mk(), self.mk()
