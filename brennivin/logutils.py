@@ -153,22 +153,22 @@ def get_filenames_from_loggers(loggers=None, _loggingmodule=None):
     return tuple(allfilenames)
 
 
-def remove_old_files(rootDir, namePattern='*', maxFiles=1):
+def remove_old_files(root, namepattern='*', maxfiles=1):
     """Removes the oldest files that match ``namePattern`` inside of ``rootDir``,
     so that only ``maxFiles`` of those matches remain.
 
-    :param maxFiles: Number of files to keep. If 0, remove all files.
+    :param maxfiles: Number of files to keep. If 0, remove all files.
     """
-    if maxFiles < 0:
-        raise ValueError('maxFiles must be >= 0, got %s' % maxFiles)
+    if maxfiles < 0:
+        raise ValueError('maxFiles must be >= 0, got %s' % maxfiles)
 
     lstFiles = []
-    for f in _os.listdir(rootDir):
-        if _fnmatch.fnmatch(f, namePattern):
-            fileName = _os.path.join(rootDir, f)
+    for f in _os.listdir(root):
+        if _fnmatch.fnmatch(f, namepattern):
+            fileName = _os.path.join(root, f)
             lstFiles.append(fileName)
     lstFiles.sort(key=_os.path.getmtime, reverse=True)
-    for f in lstFiles[maxFiles:]:
+    for f in lstFiles[maxfiles:]:
         try:
             _os.remove(f)
         except (OSError, IOError):

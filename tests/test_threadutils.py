@@ -85,11 +85,11 @@ class TestChunkIter(unittest.TestCase):
         chunker, res = self.runMapper(waitForGo(), wait=False, chunksize=1)
         self.assertFalse(chunker.is_finished())
         self.go = True
-        chunker.wait_chunks(2, sleepInterval=.01)
+        chunker.wait_chunks(2, sleep_interval=.01)
         self.assertFalse(chunker.is_finished())
         self.assertEqual(res, [[1]] * 2)
         self.go = True
-        chunker.wait_chunks(sleepInterval=.01)
+        chunker.wait_chunks(sleep_interval=.01)
         self.assertTrue(chunker.is_finished())
         self.assertEqual(res, [[1]] * 3)
 
@@ -408,7 +408,7 @@ class TestMemoize(unittest.TestCase):
             return inner
         li = []
 
-        @threadutils.memoize(useLock=True, _lockcls=lock)
+        @threadutils.memoize(uselock=True, _lockcls=lock)
         def testit():
             self.assertEqual(self.enteredLockCnt, numthreads)
             li.append(0)

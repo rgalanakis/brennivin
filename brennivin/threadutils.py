@@ -99,13 +99,13 @@ class ChunkIter(object):
         """:meth:`threading.Thread.join(timeout)` on the background thread."""
         self.thread.join(timeout)
 
-    def wait_chunks(self, chunks=1, sleepInterval=1):
+    def wait_chunks(self, chunks=1, sleep_interval=1):
         """Waits for ``chunks`` amount of chunks to be reported. Useful
         directly after initialization, to wait for some seed of items to
         be iterated.
 
         :param chunks: Number of chunks to wait for.
-        :param sleepInterval: Amount of time to sleep before checking to
+        :param sleep_interval: Amount of time to sleep before checking to
           see if new chunks are reported.
         """
         if self._isFinished:  # pragma: no cover
@@ -117,7 +117,7 @@ class ChunkIter(object):
             fireCnt[0] += 1
         self._fireCallback.connect(onChunk)
         while not self._isFinished and fireCnt[0] < chunks:
-            self.sleep(sleepInterval)
+            self.sleep(sleep_interval)
     WaitChunks = wait_chunks
 
     def is_finished(self):
@@ -325,7 +325,7 @@ class Token(object):
         return self._isSet
 
 
-def memoize(func=None, useLock=False, _lockcls=_dochelpers.ignore):
+def memoize(func=None, uselock=False, _lockcls=_dochelpers.ignore):
     """Decorator for parameterless functions, to cache their return value.
     This is functionally the same as using a Lazy
     instance but allows the use of true functions instead of attributes.
@@ -337,21 +337,21 @@ def memoize(func=None, useLock=False, _lockcls=_dochelpers.ignore):
       non-locking memoize (so there is a potential for the function to be
       called several times).
       If func is passed, ``useLock`` *must* be False.
-    :param useLock: If True, acquire a lock when evaluating func,
+    :param uselock: If True, acquire a lock when evaluating func,
       so it can only be evaluated once.
     """
     def hasParameterless(func_):
         argspec = _inspect.getargspec(func_)
         return any(argspec)
 
-    if not func and not useLock:
+    if not func and not uselock:
         raise AssertionError('If not using lock, must provide func '
                              '(decorate without params)')
     cache = []
     if callable(func):
         if hasParameterless(func):
             raise ValueError('Function cannot have parameters.')
-        assert not useLock, 'Cannot use lock if func is provided.'
+        assert not uselock, 'Cannot use lock if func is provided.'
 
         def inner(*args, **kwargs):
             if not cache:

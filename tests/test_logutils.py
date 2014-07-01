@@ -162,12 +162,12 @@ class TestRemoveFiles(unittest.TestCase):
 
     def testIfLessThanMaxFilesNoFilesAreDelete(self):
         f1, f2 = self.mk(), self.mk()
-        logutils.remove_old_files(self.root, maxFiles=4)
+        logutils.remove_old_files(self.root, maxfiles=4)
         self.assertRootContents([f1, f2])
 
     def testExcessFilesAreDeleted(self):
         f1, f2, f3, f4 = [self.mk() for _ in range(4)]
-        logutils.remove_old_files(self.root, maxFiles=2)
+        logutils.remove_old_files(self.root, maxfiles=2)
         self.assertRootContents([f3, f4])
 
     def testOnlyDeletesNamePattern(self):
@@ -183,12 +183,12 @@ class TestRemoveFiles(unittest.TestCase):
             'it cannot be deleted.')
         f1, f2, f3, f4 = self.mk(), self.mk(), self.mk(), self.mk()
         with open(f1, 'wb+'):
-            logutils.remove_old_files(self.root, '*', maxFiles=2)
+            logutils.remove_old_files(self.root, '*', maxfiles=2)
         self.assertRootContents([f1, f3, f4])
 
     def test0MaxFilesRemovesAll(self):
         self.mk(), self.mk()
-        logutils.remove_old_files(self.root, maxFiles=0)
+        logutils.remove_old_files(self.root, maxfiles=0)
         self.assertRootContents([])
 
 

@@ -26,16 +26,16 @@ class retry(object):
     retry, the wait will be multiplied by backoff.
 
     :param attempts: Number of attemts to retry, total.  Must be >= 1.
-    :param excFilter: Types of exceptions to catch when an attempt fails.
+    :param excfilter: Types of exceptions to catch when an attempt fails.
     :param wait: Initial amount of time to sleep before retrying. Must be >= 0.
         If 0, do not sleep between retries.
     :param backoff: Multiplier for time to sleep, multiplied by number of
         attempts. Must be >= 1.
-    :param sleepFunc: The function used to sleep between retries.
+    :param sleepfunc: The function used to sleep between retries.
       Default to :func:`time.sleep`.
     """
-    def __init__(self, attempts=2, excFilter=(Exception,), wait=0, backoff=1,
-                 sleepFunc=None):
+    def __init__(self, attempts=2, excfilter=(Exception,), wait=0, backoff=1,
+                 sleepfunc=None):
         if attempts < 1:
             raise ValueError('attempts must be greater than or equal to 1.')
         if wait < 0:
@@ -43,10 +43,10 @@ class retry(object):
         if backoff < 1:
             raise ValueError('backoff must be greater than or equal to 1.')
         self.attempts = attempts
-        self.excFilter = excFilter
+        self.excFilter = excfilter
         self.wait = wait
         self.backoff = backoff
-        self.sleep = sleepFunc or _time.sleep
+        self.sleep = sleepfunc or _time.sleep
 
     def __call__(self, func):
         attemptsLeft = [self.attempts]  # So we can re-use inside of inner.

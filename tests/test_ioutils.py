@@ -30,7 +30,7 @@ class TestRetry(unittest.TestCase):
         """
         res = []
 
-        @ioutils.retry(4, sleepFunc=time.sleep)
+        @ioutils.retry(4, sleepfunc=time.sleep)
         def wrapped():
             res.append(0)
             raise SystemError  # Raise so we retry
@@ -42,7 +42,7 @@ class TestRetry(unittest.TestCase):
         is aborted."""
         res = []
 
-        @ioutils.retry(excFilter=(NotImplementedError,))
+        @ioutils.retry(excfilter=(NotImplementedError,))
         def wrapped():
             res.append(1)  # We should only have 1 item in res because the
                            #  exception will propogate
@@ -56,7 +56,7 @@ class TestRetry(unittest.TestCase):
         """
         res = []
 
-        @ioutils.retry(excFilter=(ArithmeticError,), attempts=2)
+        @ioutils.retry(excfilter=(ArithmeticError,), attempts=2)
         def wrapped():
             res.append(1)  # We should end up with # of items == # of retries
             raise FloatingPointError
