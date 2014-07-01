@@ -10,6 +10,8 @@ This aids in creating version-agnostic test cases.
 
 """
 from __future__ import print_function
+import difflib
+import json
 import os as _os
 import sys as _sys
 import time as _time
@@ -85,7 +87,7 @@ def assertNumberSequencesEqual(testcase, a, b, tolerance=0):
             raise AssertionError("%s != %s (element %s)" % (a, b, i))
 
 
-def assertEqualPretty(testcase, ideal, calculated, msg=None):
+def assertEqualPretty(testcase, calculated, ideal, msg=None):
     """Prints ideal and calculated on two lines, for easier analysis of
     what's different.  Useful for sequences.
 
@@ -97,7 +99,7 @@ def assertEqualPretty(testcase, ideal, calculated, msg=None):
         testcase.assertEqual(ideal, calculated, msg)
     except AssertionError:
         print('ideal:', ideal)
-        print('calc : ', calculated)
+        print('calc: ', calculated)
         raise
 
 
@@ -223,6 +225,16 @@ def assertZipEqual(calcpath, idealpath):
         raise AssertionError(ex.args[0])
 
 
+def assertJsonEqual(testcase, calc, ideal):
+    if calc == ideal:
+        return
+    gotstr = json.dumps(calc, indent=4).splitlines()
+    idealstr = json.dumps(ideal, indent=4).splitlines()
+    for d in difflib.unified_diff(gotstr, idealstr, 'calculated', 'ideal'):
+        print(d)
+    testcase.fail('Objects differ. See stderr output.')
+
+
 def assertFoldersEqual(
         testcase, calcfolder, idealfolder,
         compare=_dochelpers.pretty_func(assertCrcEqual, 'assertCrcEqual')):
@@ -240,7 +252,7 @@ def assertFoldersEqual(
     idealClean, idealAll = getfiles(idealfolder)
 
     try:
-        assertEqualPretty(testcase, idealClean, calcClean)
+        assertEqualPretty(testcase, calcClean, idealClean)
         for f1, f2 in zip(calcAll, idealAll):
             compare(testcase, f1, f2)
     except AssertionError:
