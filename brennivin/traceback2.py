@@ -16,6 +16,7 @@ import pprint as _pprint
 import sys as _sys
 from traceback import format_exception_only as _format_exception_only
 
+from . import _compat
 
 #formatting constants:
 FORMAT_NORMAL = 0  # filname, line and function on one line, function contents on the next
@@ -122,7 +123,7 @@ def _format_locals(f_locals, format):
             if len(vlines) > 4:
                 vlines[4:] = ["..."]
             #indent lines
-            for i in xrange(1, len(vlines)):
+            for i in _compat.xrange(1, len(vlines)):
                 vlines[i] = " " * 23 + vlines[i]
             extra += "\n".join(vlines) + "\n"
         except Exception as e:

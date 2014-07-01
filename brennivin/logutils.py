@@ -139,6 +139,7 @@ def get_filenames_from_loggers(loggers=None, _loggingmodule=None):
     _loggingmodule = _loggingmodule or _logging
     if loggers is None:
         loggers = [_loggingmodule.root]
+        # noinspection PyUnresolvedReferences
         loggers.extend(_loggingmodule.Logger.manager.loggerDict.values())
     allfilenames = set()
     # Placeholders can be in the logger so limit it to

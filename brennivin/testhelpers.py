@@ -10,7 +10,6 @@ This aids in creating version-agnostic test cases.
 
 """
 from __future__ import print_function
-import itertools as _itertools
 import os as _os
 import sys as _sys
 import time as _time
@@ -21,6 +20,7 @@ import mock as _mock
 from . import (
     _compat,
     dochelpers as _dochelpers,
+    itertoolsext as _itertoolsext,
     osutils as _osutils,
     zipfileutils as _zipfileutils)
 
@@ -49,6 +49,14 @@ class FakeTestCase(unittest.TestCase):
 
 
 def assertBetween(tc, a, b, c, eq=False):
+    """
+    Asserts that::
+
+        if eq:
+            a <= b <= c
+        else:
+            a < b < c
+    """
     le = tc.assertLessEqual if eq else tc.assertLess
     le(a, b)
     le(b, c)
@@ -128,7 +136,7 @@ def assertTextFilesEqual(testcase, calcpath, idealpath, compareLines=None):
         pass
     with open(calcpath) as fcalc:
         with open(idealpath) as fideal:
-            for linecalc, lineideal in _itertools.izip_longest(
+            for linecalc, lineideal in _itertoolsext.izip_longest(
                     fcalc, fideal, fillvalue=''):
                 compareLines(linecalc, lineideal)
 
@@ -162,6 +170,7 @@ def compareXml(x1, x2, reporter=_dochelpers.identity):
     if not _compareXmlText(x1.tail, x2.tail):
         reporter('tail: %r != %r' % (x1.tail, x2.tail))
         return False
+    # noinspection PyDeprecation
     cl1 = x1.getchildren()
     cl2 = x2.getchildren()
     if len(cl1) != len(cl2):

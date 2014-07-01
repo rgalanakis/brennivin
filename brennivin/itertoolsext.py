@@ -32,6 +32,8 @@ from .dochelpers import identity as _identity, default as _unsupplied
 
 if _compat.PY3K:
     ifilter = filter
+    izip = zip
+    izip_longest = zip_longest
 
 
 class Bundle(dict):
