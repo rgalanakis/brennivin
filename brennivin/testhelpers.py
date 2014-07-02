@@ -200,8 +200,8 @@ def _compareXmlText(t1, t2):
 def assertXmlEqual(a, b):
     """Asserts two xml documents are equal.
 
-    :type a: (basestring, xml.etree.ElementTree.Element)
-    :type b: (basestring, xml.etree.ElementTree.Element)
+    :type a: str, unicode, xml.etree.ElementTree.Element
+    :type b: str, unicode, xml.etree.ElementTree.Element
     """
     if isinstance(a, _compat.StringTypes):
         a = _elementtree.fromstring(a)
