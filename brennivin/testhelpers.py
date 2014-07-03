@@ -87,6 +87,16 @@ def assertNumberSequencesEqual(testcase, a, b, tolerance=0):
             raise AssertionError("%s != %s (element %s)" % (a, b, i))
 
 
+def assertStartsWith(s, start):
+    if not s.startswith(start):
+        raise AssertionError('%s must start with %s' % (s, start))
+
+
+def assertEndsWith(s, end):
+    if not s.endswith(end):
+        raise AssertionError('%s must end with %s' % (s, end))
+
+
 def assertEqualPretty(testcase, calculated, ideal, msg=None):
     """Prints ideal and calculated on two lines, for easier analysis of
     what's different.  Useful for sequences.
