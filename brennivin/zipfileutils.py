@@ -110,6 +110,29 @@ def is_inside_zipfile(filepath):
     return is_zip
 
 
+_ZIP_ATTRS = [
+    'CRC',
+    '_raw_time',
+    'comment',
+    'compress_size',
+    'compress_type',
+    'create_system',
+    'create_version',
+    'date_time',
+    'external_attr',
+    'extra',
+    'extract_version',
+    'file_size',
+    'filename',
+    'flag_bits',
+    'header_offset',
+    'internal_attr',
+    'orig_filename',
+    'reserved',
+    'volume'
+]
+
+
 def compare_zip_files(z1, z2):
     """Compares the contents of two zip files.
 
@@ -127,7 +150,14 @@ def compare_zip_files(z1, z2):
         raise FileComparisonError(
             'File lists differ: %s, %s' % (f1names, f2names))
 
+    diffs = []
     for f1i, f2i in zip(f1infos, f2infos):
-        if f1i.CRC != f2i.CRC:
-            raise FileComparisonError('%s CRCs different (%s, %s).' % (
-                f1i.filename, f1i.CRC, f2i.CRC))
+        for attr in _ZIP_ATTRS:
+            f1val, f2val = getattr(f1i, attr), getattr(f2i, attr)
+            if f1val != f2val:
+                diffs.append((f1i.filename, attr, f1val, f2val))
+    if diffs:
+        lines = ['The following attributes are different:']
+        for diff in diffs:
+            lines.append('  %s: %s (%r, %r)' % diff)
+        raise FileComparisonError('\n'.join(lines))
