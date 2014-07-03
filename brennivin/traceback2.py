@@ -43,11 +43,10 @@ def print_exception(etype, value, tb, limit=None, file=None,
 
 
 def format_exception(etype, value, tb, limit=None, show_locals=0, format=FORMAT_NORMAL):
+    lst = []
     if tb:
-        lst = ['Traceback (most recent call last):\n']
-        lst = lst + format_tb(tb, limit, show_locals, format)
-    else:
-        lst = []
+        lst.append('Traceback (most recent call last):\n')
+        lst.extend(format_tb(tb, limit, show_locals, format))
     return lst + _format_exception_only(etype, value)
 
 
