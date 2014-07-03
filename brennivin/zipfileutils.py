@@ -133,6 +133,11 @@ _ZIP_ATTRS = [
 ]
 
 
+def _sorted_infolist(zippath):
+    return sorted(_zipfile.ZipFile(zippath).infolist(),
+                  key = lambda zi: zi.filename)
+
+
 def compare_zip_files(z1, z2):
     """Compares the contents of two zip files.
 
@@ -141,11 +146,10 @@ def compare_zip_files(z1, z2):
       Message contains a string summarizing the difference.
     """
 
-    f1infos = _zipfile.ZipFile(z1).infolist()
-    f2infos = _zipfile.ZipFile(z2).infolist()
-
-    f1names = sorted([f.filename for f in f1infos])
-    f2names = sorted([f.filename for f in f2infos])
+    f1infos = _sorted_infolist(z1)
+    f2infos = _sorted_infolist(z2)
+    f1names = [f.filename for f in f1infos]
+    f2names = [f.filename for f in f2infos]
     if f1names != f2names:
         raise FileComparisonError(
             'File lists differ: %s, %s' % (f1names, f2names))

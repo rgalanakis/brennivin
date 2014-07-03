@@ -5,7 +5,9 @@ import tempfile
 import unittest
 import zipfile
 
-from brennivin import osutils, testhelpers, zipfileutils as zu
+import mock
+
+from brennivin import itertoolsext, osutils, testhelpers, zipfileutils as zu
 
 
 THISDIR = os.path.dirname(__file__)
@@ -83,7 +85,8 @@ class TestCompareZipFiles(unittest.TestCase):
     def testDifferentFileContentsRaise(self):
         f1 = self.createZip([['f1.txt', '1']])
         f2 = self.createZip([['f1.txt', '2']])
-        self.assertAssertsWithMsg(f1, f2, 'f1.txt: CRC (2212294583, 450215437)', True)
+        self.assertAssertsWithMsg(
+            f1, f2, 'f1.txt: CRC (2212294583, 450215437)', True)
 
     def testDifferentNumFilesRaise(self):
         f1 = self.createZip([['f1.txt', '1'], ['f2.txt', '1']])
@@ -100,9 +103,33 @@ class TestCompareZipFiles(unittest.TestCase):
     def testEmptyFilesBehavior(self):
         # Behavior changed in 2.7 series, not sure exactly what version
         # (2.7.0 is in shared_tools, 2.7.3 in CCP interpreter
-        docompare = lambda: zu.compare_zip_files(self.createZip([]), self.createZip([]))
+        def docompare():
+            return zu.compare_zip_files(self.createZip([]), self.createZip([]))
         if sys.version_info < (2, 7, 2):
             with self.assertRaises(zipfile.BadZipfile):
                 docompare()
         else:
             docompare()
+
+    def testSortsInfos(self):
+        """There was an error because calling infolist() on the two zip files
+        was not giving a consistent result.
+        So we mock to force this situation,
+        and test ensure the code handles this platform-dependent edge case.
+        """
+        old_infolist = zipfile.ZipFile.infolist
+        shuffled = []
+
+        def infolist(zself):
+            result = old_infolist(zself)
+            names = [z.filename for z in result]
+            if names in shuffled:
+                result = itertoolsext.shuffle(result)
+            shuffled.append(names)
+            return result
+
+        def create_zip():
+            return self.createZip([['1.a', '1'], ['2.b', '2']])
+
+        with testhelpers.Patcher(zipfile.ZipFile, 'infolist', infolist):
+            zu.compare_zip_files(create_zip(), create_zip())
