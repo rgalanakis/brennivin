@@ -19,7 +19,7 @@ class ZipFileUtilsTests(unittest.TestCase):
 
     def setUp(self):
         self.tempd = tempfile.mkdtemp()
-        self.addCleanup(shutil.rmtree, self.tempd)
+        #self.addCleanup(shutil.rmtree, self.tempd)
         self.zippath = os.path.join(self.tempd, self._testMethodName + '.zip')
 
     def assertZip(self, ideal):
@@ -30,8 +30,8 @@ class ZipFileUtilsTests(unittest.TestCase):
         self.assertZip(IDEAL_ALL)
 
     def testZipDirFiltered(self):
-        include = lambda p: p.endswith('.txt')
-        exclude = lambda p: p.endswith('b.txt')
+        include = lambda p: p.endswith('.fake')
+        exclude = lambda p: p.endswith('b.fake')
         zu.zip_dir(TESTROOT, self.zippath, include, exclude)
         self.assertZip(IDEAL_FILTERED)
 
