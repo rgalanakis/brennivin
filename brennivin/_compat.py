@@ -20,6 +20,8 @@ if sys.version_info[0] > 2:
     TimerCls = threading.Timer
 
     xrange = range
+
+    from io import StringIO
 else:
     PY3K = False
 
@@ -37,3 +39,5 @@ else:
 
     # noinspection PyUnresolvedReferences,PyShadowingBuiltins,PyUnboundLocalVariable
     xrange = xrange
+
+    from cStringIO import StringIO
