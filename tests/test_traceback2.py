@@ -5,6 +5,12 @@ import unittest
 from brennivin import compat, traceback2 as tb2
 
 
+def get_funccode(func):
+    if compat.PY3K:
+        return func.__func__.__code__
+    return func.im_func.func_code
+
+
 class Traceback2Tests(unittest.TestCase):
     def test_print(self):
         """
@@ -23,7 +29,7 @@ class Traceback2Tests(unittest.TestCase):
             self.assertEqual(lines[0], 'Traceback (most recent call last):')
             self.assertRegexpMatches(lines[1], '  File ".*test_traceback2.py", line \d\d, in test_print')
             self.assertEqual(lines[2], '    raise SystemError()')
-            self.assertRegexpMatches(lines[3], '                 out = <cStringIO\.StringO object at 0x([0-9]|[a-z])*>')
+            self.assertRegexpMatches(lines[3], '                 out = <.*\.String\w?O object at 0x([0-9]|[a-z])*>')
             self.assertEqual(lines[4], '                self = <tests.test_traceback2.Traceback2Tests testMethod=test_print>')
             self.assertEqual(lines[-1], 'SystemError')
         except AssertionError:  # pragma: no cover
@@ -39,7 +45,7 @@ class Traceback2Tests(unittest.TestCase):
         self.assertEqual(self.clean(path), self.clean(__file__))
         self.assertEqual(
             lineno,
-            self.test_extract_stack.im_func.func_code.co_firstlineno + 1)
+            get_funccode(self.test_extract_stack).co_firstlineno + 1)
         self.assertEqual(func, self.test_extract_stack.__name__)
         self.assertEqual(line, 'stack = tb2.extract_stack()')
         self.assertIsNone(notsure)
