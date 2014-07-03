@@ -1,2 +1,3 @@
 *.fake binary
 *.zip binary
+*.bin binary

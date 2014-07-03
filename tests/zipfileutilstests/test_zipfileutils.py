@@ -105,3 +105,11 @@ class TestCompareZipFiles(unittest.TestCase):
                 docompare()
         else:
             docompare()
+
+
+class SanityCheckTests(unittest.TestCase):
+
+    def testCrcsMatch(self):
+        for binf in osutils.listdirex(THISDIR, '*.bin'):
+            zipf = osutils.change_ext(binf, '.zip')
+            testhelpers.assertCrcEqual(self, binf, zipf)
