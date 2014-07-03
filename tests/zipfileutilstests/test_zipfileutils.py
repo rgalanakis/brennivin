@@ -19,7 +19,7 @@ class ZipFileUtilsTests(unittest.TestCase):
 
     def setUp(self):
         self.tempd = tempfile.mkdtemp()
-        #self.addCleanup(shutil.rmtree, self.tempd)
+        self.addCleanup(shutil.rmtree, self.tempd)
         self.zippath = os.path.join(self.tempd, self._testMethodName + '.zip')
 
     def assertZip(self, ideal):
