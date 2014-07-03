@@ -1,9 +1,8 @@
 from __future__ import print_function
 
-from StringIO import StringIO
 import unittest
 
-from brennivin import testhelpers, traceback2 as tb2
+from brennivin import _compat, testhelpers, traceback2 as tb2
 
 
 class Traceback2Tests(unittest.TestCase):
@@ -13,7 +12,7 @@ class Traceback2Tests(unittest.TestCase):
         Not super useful but better than nothing!
         More specific tests can be added when changes need to be made.
         """
-        out = StringIO()
+        out = _compat.StringIO()
         try:
             raise SystemError()
         except SystemError:
@@ -22,11 +21,9 @@ class Traceback2Tests(unittest.TestCase):
         lines = output.splitlines()
         try:
             self.assertEqual(lines[0], 'Traceback (most recent call last):')
-            testhelpers.assertStartsWith(lines[1], '  File "')
-            testhelpers.assertEndsWith(lines[1],
-                                       ', in %s' % self.test_print.__name__)
+            self.assertRegexpMatches(lines[1], '  File ".*test_traceback2.py", line \d\d, in test_print')
             self.assertEqual(lines[2], '    raise SystemError()')
-            testhelpers.assertStartsWith(lines[3], '                 out = <StringIO.StringIO instance at 0x')
+            self.assertRegexpMatches(lines[3], '                 out = <cStringIO\.StringO object at 0x([0-9]|[a-z])*>')
             self.assertEqual(lines[4], '                self = <tests.test_traceback2.Traceback2Tests testMethod=test_print>')
             self.assertEqual(lines[-1], 'SystemError')
         except AssertionError:  # pragma: no cover
