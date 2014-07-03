@@ -20,7 +20,7 @@ import xml.etree.ElementTree as _elementtree
 import mock as _mock
 
 from . import (
-    _compat,
+    compat as _compat,
     dochelpers as _dochelpers,
     itertoolsext as _itertoolsext,
     osutils as _osutils,

@@ -16,7 +16,7 @@ import pprint as _pprint
 import sys as _sys
 from traceback import format_exception_only as _format_exception_only
 
-from . import _compat
+from . import compat as _compat
 
 #formatting constants:
 FORMAT_NORMAL = 0  # filname, line and function on one line, function contents on the next

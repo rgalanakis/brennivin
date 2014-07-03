@@ -1,6 +1,6 @@
 import unittest
 
-from brennivin import _compat, nicenum as n
+from brennivin import compat, nicenum as n
 
 
 class FormatTests(unittest.TestCase):
@@ -21,7 +21,7 @@ class FormatTests(unittest.TestCase):
         self.assertResult('0.000 000 539 2', 5.3918e-07, 1e-10)
 
     def testLong(self):
-        self.assertResult('123', _compat.long(123), 1)
+        self.assertResult('123', compat.long(123), 1)
 
 
 class FormatMemTests(unittest.TestCase):

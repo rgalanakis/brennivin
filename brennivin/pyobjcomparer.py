@@ -16,7 +16,7 @@ Members
 """
 from pprint import pformat as _pformat
 
-from . import _compat
+from . import compat as _compat
 
 
 TOLERANCE = 0.0001

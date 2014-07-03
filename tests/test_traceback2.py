@@ -2,7 +2,7 @@ from __future__ import print_function
 
 import unittest
 
-from brennivin import _compat, testhelpers, traceback2 as tb2
+from brennivin import compat, traceback2 as tb2
 
 
 class Traceback2Tests(unittest.TestCase):
@@ -12,7 +12,7 @@ class Traceback2Tests(unittest.TestCase):
         Not super useful but better than nothing!
         More specific tests can be added when changes need to be made.
         """
-        out = _compat.StringIO()
+        out = compat.StringIO()
         try:
             raise SystemError()
         except SystemError:

@@ -1,7 +1,5 @@
 import unittest
 
-# noinspection PyProtectedMember
-from brennivin import _compat
 from brennivin.pyobjcomparer import compare, get_compound_diff, assert_compare
 
 

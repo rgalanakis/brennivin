@@ -34,7 +34,7 @@ import threading as _threading
 import time as _time
 import traceback as _traceback
 
-from . import _compat, dochelpers as _dochelpers
+from . import compat as _compat, dochelpers as _dochelpers
 
 
 class ChunkIter(object):

@@ -27,7 +27,7 @@ import datetime as _datetime
 from itertools import *
 import random as _random
 
-from . import _compat
+from . import compat as _compat
 from .dochelpers import identity as _identity, default as _unsupplied
 
 if _compat.PY3K:
