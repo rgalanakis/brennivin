@@ -26,8 +26,8 @@ class Traceback2Tests(unittest.TestCase):
             testhelpers.assertEndsWith(lines[1],
                                        ', in %s' % self.test_print.__name__)
             self.assertEqual(lines[2], '    raise SystemError()')
-            self.assertEqual(lines[3], '                self = <tests.test_traceback2.Traceback2Tests testMethod=test_print>')
-            testhelpers.assertStartsWith(lines[4], '                 out = <StringIO.StringIO instance at 0x')
+            testhelpers.assertStartsWith(lines[3], '                 out = <StringIO.StringIO instance at 0x')
+            self.assertEqual(lines[4], '                self = <tests.test_traceback2.Traceback2Tests testMethod=test_print>')
             self.assertEqual(lines[-1], 'SystemError')
         except AssertionError:  # pragma: no cover
             print(output)

@@ -105,7 +105,7 @@ def _format_locals(f_locals, format):
     lines = []
     if f_locals is None:
         return lines
-    for key, value in f_locals.iteritems():
+    for key, value in sorted(f_locals.iteritems()):
         if format & FORMAT_LOGSRV:
             extra = '        %s = ' % (key,)
         else:
