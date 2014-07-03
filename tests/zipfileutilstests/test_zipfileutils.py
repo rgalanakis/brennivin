@@ -64,18 +64,12 @@ class TestCompareZipFiles(unittest.TestCase):
                 z.writestr(fpath, fstr)
         return path
 
-    def assertAssertsWithMsg(self, z1, z2, msg, starts=False):
+    def assertAssertsWithMsg(self, z1, z2, msg):
         try:
             zu.compare_zip_files(z1, z2)
             self.fail('Should  have raised')
         except zu.FileComparisonError as ex:
-            if starts:
-                firstline = ex.args[0].splitlines()[1].strip()
-                self.assertTrue(
-                    firstline.startswith(msg),
-                    '%r should have started with %r' % (firstline, msg))
-            else:
-                self.assertEqual(ex.args[0], msg)
+            self.assertEqual(ex.args[0], msg)
 
     def testEqualZips(self):
         f1 = self.createZip()
@@ -85,8 +79,7 @@ class TestCompareZipFiles(unittest.TestCase):
     def testDifferentFileContentsRaise(self):
         f1 = self.createZip([['f1.txt', '1']])
         f2 = self.createZip([['f1.txt', '2']])
-        self.assertAssertsWithMsg(
-            f1, f2, 'f1.txt: CRC (2212294583, 450215437)', True)
+        self.assertAssertsWithMsg(f1, f2, 'f1.txt CRCs different.')
 
     def testDifferentNumFilesRaise(self):
         f1 = self.createZip([['f1.txt', '1'], ['f2.txt', '1']])
