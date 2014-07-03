@@ -129,4 +129,5 @@ def compare_zip_files(z1, z2):
 
     for f1i, f2i in zip(f1infos, f2infos):
         if f1i.CRC != f2i.CRC:
-            raise FileComparisonError('%s CRCs different.' % f1i.filename)
+            raise FileComparisonError('%s CRCs different (%s, %s).' % (
+                f1i.filename, f1i.CRC, f2i.CRC))
