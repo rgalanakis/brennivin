@@ -107,7 +107,7 @@ def assertEqualPretty(testcase, calculated, ideal, msg=None):
     """
     try:
         testcase.assertEqual(ideal, calculated, msg)
-    except AssertionError:
+    except AssertionError:  # pragma: no cover
         print('ideal:', ideal)
         print('calc: ', calculated)
         raise
@@ -265,7 +265,7 @@ def assertFoldersEqual(
         assertEqualPretty(testcase, calcClean, idealClean)
         for f1, f2 in zip(calcAll, idealAll):
             compare(testcase, f1, f2)
-    except AssertionError:
+    except AssertionError:  # pragma: no cover
         print('Compared Folders:')
         print('ideal:', idealfolder)
         print('calc: ', calcfolder)

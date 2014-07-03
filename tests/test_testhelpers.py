@@ -63,6 +63,21 @@ class TestAssertFloatsSeqEqual(unittest.TestCase):
         assertRaise(b, a)
 
 
+class AssertStartsAndEndsWithTests(unittest.TestCase):
+
+    def testStarts(self):
+        s = 'abcd'
+        th.assertStartsWith(s, 'ab')
+        with self.assertRaises(AssertionError):
+            th.assertStartsWith(s, 'b')
+
+    def testEnds(self):
+        s = 'abcd'
+        th.assertEndsWith(s, 'cd')
+        with self.assertRaises(AssertionError):
+            th.assertStartsWith(s, 'c')
+
+
 class TestAssertPermissionbitsEqual(unittest.TestCase):
 
     def setUp(self):
