@@ -1,5 +1,9 @@
 .. include:: _copied_readme.rst
 
+.. image:: _static/logo.png
+    :alt: logo
+    :align: right
+
 .. _a-mods:
 
 Brennivin's modules

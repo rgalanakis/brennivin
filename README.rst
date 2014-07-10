@@ -1,5 +1,3 @@
-:orphan:
-
 .. image:: https://travis-ci.org/rgalanakis/brennivin.svg?branch=master
     :target: https://travis-ci.org/rgalanakis/brennivin
     :alt: build status
