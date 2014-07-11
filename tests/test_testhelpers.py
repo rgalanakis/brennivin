@@ -193,15 +193,43 @@ class TestMonkeyPatcher(unittest.TestCase):
 
 class TestXmlCompare(unittest.TestCase):
 
-    def testNotEqual(self):
-        a = '<root><a></a></root>'
-        b = '<root><b></b></root>'
-        self.assertRaises(AssertionError, th.assertXmlEqual, a, b)
+    def assertXmlNEq(self, a, b):
+        with self.assertRaises(AssertionError):
+            th.assertXmlEqual(a, b)
 
     def testEqual(self):
-        a = '<root />'
-        b = '<root>\n</root>'
-        th.assertXmlEqual(a, b)
+        th.assertXmlEqual(
+            '<root />',
+            '<root>\n</root>')
+
+    def testNodesNotEqual(self):
+        self.assertXmlNEq(
+            '<root><a></a></root>',
+            '<root><b></b></root>')
+        self.assertXmlNEq(
+            '<root></root>',
+            '<root><b></b></root>')
+
+    def testTextNotEqual(self):
+        self.assertXmlNEq(
+            '<r><a>hi</a></r>',
+            '<r><a>bye</a></r>')
+
+    def testAttribsNotEqual(self):
+        self.assertXmlNEq(
+            '<r a="1"></r>',
+            '<r a="2"></r>')
+        self.assertXmlNEq(
+            '<r a="1"></r>',
+            '<r b="1"></r>')
+        self.assertXmlNEq(
+            '<r></r>',
+            '<r b="1"></r>')
+
+    def testStarTextMatches(self):
+        a = '<r>*</r>'
+        th.assertXmlEqual(a, '<r></r>')
+        th.assertXmlEqual(a, '<r>hi</r>')
 
 
 class CallCounterTests(unittest.TestCase):
