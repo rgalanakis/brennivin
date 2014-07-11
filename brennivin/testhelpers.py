@@ -89,12 +89,12 @@ def assertNumberSequencesEqual(testcase, a, b, tolerance=0):
 
 def assertStartsWith(s, start):
     if not s.startswith(start):
-        raise AssertionError('%s must start with %s' % (s, start))
+        raise AssertionError('%r must start with %r' % (s, start))
 
 
 def assertEndsWith(s, end):
     if not s.endswith(end):
-        raise AssertionError('%s must end with %s' % (s, end))
+        raise AssertionError('%r must end with %r' % (s, end))
 
 
 def assertEqualPretty(testcase, calculated, ideal, msg=None):
@@ -235,14 +235,19 @@ def assertZipEqual(calcpath, idealpath):
         raise AssertionError(ex.args[0])
 
 
-def assertJsonEqual(testcase, calc, ideal):
+def assertJsonEqual(calc, ideal, out=_sys.stderr):
+    """Asserts if ``calc != ideal``.
+    Will print the diff between the json dump of ``calc`` and ``ideal``
+    to ``out`` before asserting,
+    as a debugging aid.
+    """
     if calc == ideal:
         return
     gotstr = json.dumps(calc, indent=4).splitlines()
     idealstr = json.dumps(ideal, indent=4).splitlines()
     for d in difflib.unified_diff(gotstr, idealstr, 'calculated', 'ideal'):
-        print(d)
-    testcase.fail('Objects differ. See stderr output.')
+        print(d, file=out)
+    raise AssertionError('Objects differ. See stderr output.')
 
 
 def assertFoldersEqual(

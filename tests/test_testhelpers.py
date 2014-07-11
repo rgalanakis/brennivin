@@ -1,8 +1,9 @@
 import os
+import tempfile
 import time
 import unittest
 
-from brennivin import itertoolsext, osutils, testhelpers as th
+from brennivin import compat, itertoolsext, osutils, testhelpers as th
 
 
 class TestAssertNumbersEqual(unittest.TestCase):
@@ -103,6 +104,55 @@ class TestAssertPermissionbitsEqual(unittest.TestCase):
     def tearDown(self):
         map(lambda p: osutils.set_readonly(p, False), self._files)
         map(os.remove, self._files)
+
+
+class AssertTextFilesEqualTests(unittest.TestCase):
+
+    def setUp(self):
+        self.f1 = tempfile.NamedTemporaryFile()
+        self.f1.__enter__()
+        self.addCleanup(lambda: self.f1.__exit__)
+        self.f2 = tempfile.NamedTemporaryFile()
+        self.f2.__enter__()
+        self.addCleanup(lambda: self.f2.__exit__)
+
+    def assertEq(self):
+        self.f1.flush()
+        self.f2.flush()
+        th.assertTextFilesEqual(self, self.f1.name, self.f2.name)
+
+    def assertNeq(self):
+        with self.assertRaises(AssertionError):
+            self.assertEq()
+
+    def testIgnoresTrailingLineWhitespace(self):
+        self.f1.write(b'a\r\nb  \nc')
+        self.f2.write(b'a\nb\nc  ')
+        self.assertEq()
+
+    def testDifferentLineContentsAsserts(self):
+        self.f1.write(b'a\nb1')
+        self.f2.write(b'a\nb2')
+        self.assertNeq()
+
+    def testIgnoresTrailingWhitespaceLines(self):
+        self.f1.write(b'a')
+        self.f2.write(b'a\n  \r\n \t \n')
+        self.assertEq()
+
+
+class AssertJsonEqualTests(unittest.TestCase):
+
+    def testPrintsDiff(self):
+        out = compat.StringIO()
+        with self.assertRaises(AssertionError):
+            th.assertJsonEqual([], [1], out)
+        lines = out.getvalue().splitlines()
+        # diff output includes \n\n, which becomes empty entry from splitlines
+        # get rid of them.
+        lines = list(filter(None, lines))
+        th.assertStartsWith(lines[0], '--- calculated')
+        th.assertStartsWith(lines[1], '+++ ideal')
 
 
 class TestTimeMock(unittest.TestCase):
