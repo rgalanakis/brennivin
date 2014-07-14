@@ -22,16 +22,30 @@ from . import compat as _compat
 TOLERANCE = 0.0001
 
 
-def _compare_default(a, b, _):
-    return a == b
+def _check_type(b, type_, breadcrumb):
+    if not isinstance(b, type_):
+        breadcrumb.append(
+            '%s is not a %s' % (type(b).__name__, type_.__name__))
+        return False
+    return True
 
 
-def _compare_number(a, b, _):
-    return abs(a - b) < TOLERANCE
+def _compare_default(a, b, breadcrumb):
+    if a != b:
+        breadcrumb.append('%r != %r' % (a, b))
+        return False
+    return True
+
+
+def _compare_number(a, b, breadcrumb):
+    if abs(a - b) >= TOLERANCE:
+        breadcrumb.append('%r != %r' % (a, b))
+        return False
+    return True
 
 
 def _compare_set(a, b, breadcrumb):
-    if not isinstance(b, set):
+    if not _check_type(b, set, breadcrumb):
         return False
     a = sorted(a)
     b = sorted(b)
@@ -39,15 +53,16 @@ def _compare_set(a, b, breadcrumb):
 
 
 def _compare_tuple(a, b, breadcrumb):
-    if not isinstance(b, tuple):
+    if not _check_type(b, tuple, breadcrumb):
         return False
     return _compare(list(a), list(b), breadcrumb)
 
 
 def _compare_list(a, b, breadcrumb):
-    if not isinstance(b, list):
+    if not _check_type(b, list, breadcrumb):
         return False
     if len(a) != len(b):
+        breadcrumb.append('len neq (%s != %s)' % (len(a), len(b)))
         return False
     for i, (aitem, bitem) in enumerate(zip(a, b)):
         eq = _compare(aitem, bitem, breadcrumb)
@@ -58,7 +73,7 @@ def _compare_list(a, b, breadcrumb):
 
 
 def _compare_dict(a, b, breadcrumb):
-    if not isinstance(b, dict):
+    if not _check_type(b, dict, breadcrumb):
         return False
     sorted_a_keys = sorted(a.keys())
     sorted_b_keys = sorted(b.keys())
@@ -132,11 +147,12 @@ def get_compound_diff(a, b):
     return crumbs
 
 
-def assert_compare(a, b):
+def assert_compare(a, b, print_objs=True):
     """Raise AssertionError if ``a`` != ``b``, else return None."""
     path = get_compound_diff(a, b)
     if path:
-        raise AssertionError(
-            "Value at compound %s does not match:\n"
-            "a: %s\n"
-            "b: %s" % (path, _pformat(a), _pformat(b)))
+        contents = ['Value at path %s does not match.' % path]
+        if print_objs:
+            contents.append('a: %s' % _pformat(a))
+            contents.append('b: %s' % _pformat(b))
+        raise AssertionError('\n'.join(contents))

@@ -24,6 +24,7 @@ from . import (
     dochelpers as _dochelpers,
     itertoolsext as _itertoolsext,
     osutils as _osutils,
+    pyobjcomparer as _pyobjcomparer,
     zipfileutils as _zipfileutils)
 
 if _sys.version_info < (2, 7):
@@ -35,6 +36,9 @@ if _sys.version_info < (2, 7):
 else:
     # noinspection PyUnresolvedReferences
     import unittest
+
+
+assertPyObjEqual = _pyobjcomparer.assert_compare
 
 
 class FakeTestCase(unittest.TestCase):

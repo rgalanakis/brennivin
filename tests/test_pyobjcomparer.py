@@ -27,6 +27,9 @@ class sphere(object):
             self.radius == other.radius and
             self.translation == other.translation)
 
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
 
 class TestComparer(unittest.TestCase):
     def assertCompare(self, val, eq, neq):
@@ -137,32 +140,66 @@ class TestGetCompoundDiff(unittest.TestCase):
         b = {'type': 'Tr2Vector4Parameter',
              'value': [0, 1]}
         result = get_compound_diff(a, b)
-        self.assertBreadcrumb(['value', 1], result)
+        self.assertBreadcrumb(['value', 1, '0 != 1'], result)
 
     def testList(self):
         a = [{'value': [0, 0]}, {'foo': 'bar'}]
         b = [{'value': [0, 1]}, {'foo': 'bar'}]
         result = get_compound_diff(a, b)
-        self.assertBreadcrumb([0, 'value', 1], result)
+        self.assertBreadcrumb([0, 'value', 1, '0 != 1'], result)
+
+    def testList2(self):
+        self.assertBreadcrumb(
+            [0, 2, '3 != 4'],
+            get_compound_diff([[1, 2, 3]], [[1, 2, 4]]))
 
     def testNested(self):
         a = [{'first': [{'second': [{'third': [{'forth': 0}]}]}]}]
         b = [{'first': [{'second': [{'third': [{'forth': 1}]}]}]}]
         result = get_compound_diff(a, b)
         self.assertBreadcrumb(
-            [0, 'first', 0, 'second', 0, 'third', 0, 'forth'], result)
+            [0, 'first', 0, 'second', 0, 'third', 0, 'forth', '0 != 1'],
+            result)
+
+    def testItemType(self):
+        a = [{'value': [0, '1']}]
+        b = [{'value': [0, 1]}]
+        result = get_compound_diff(a, b)
+        self.assertBreadcrumb([0, 'value', 1, "'1' != 1"], result)
+
+    def testSeqType(self):
+        result = get_compound_diff([{}], [[]])
+        self.assertBreadcrumb([0, 'list is not a dict'], result)
+
+    def testListLen(self):
+        self.assertBreadcrumb(
+            [0, 'len neq (2 != 3)'],
+            get_compound_diff([[1, 2]], [[1, 2, 3]]))
+
+    def testDictLen(self):
+        self.assertBreadcrumb(
+            [0, 'len neq (1 != 2)'],
+            get_compound_diff([{'a': 1}], [{'a': 1, 'b': 2}]))
 
     def testMixed(self):
         a = sphere()
         b = {'foo': 'bar'}
-        self.assertBreadcrumb([a, b], get_compound_diff(a, b))
-        self.assertBreadcrumb([b, a], get_compound_diff(b, a))
+        self.assertBreadcrumb(['%r != %r' % (a, b)], get_compound_diff(a, b))
+        self.assertBreadcrumb(['sphere is not a dict'],
+                              get_compound_diff(b, a))
 
     def testObjectReturnsNonemptyList(self):
         a = sphere()
         b = sphere(radius=0.0)
         result = get_compound_diff(a, b)
-        self.assertBreadcrumb([a, b], result)
+        self.assertBreadcrumb(['%r != %r' % (a, b)], result)
+
+    def testData1(self):
+        a = {'frames': [{'objects': [{'a': 1, 'b': 2}]}]}
+        b = {'frames': [{'objects': [{'a': 1, 'b': 3}]}]}
+        self.assertBreadcrumb(
+            ['frames', 0, 'objects', 0, 'b', '2 != 3'],
+            get_compound_diff(a, b))
 
 
 class TestAssertCompare(unittest.TestCase):
@@ -172,3 +209,20 @@ class TestAssertCompare(unittest.TestCase):
     def testRaiseOnInequality(self):
         with self.assertRaises(AssertionError):
             assert_compare('a', 'b')
+
+    def _do_printobjs_test(self, doprint):
+        a = [sphere()]
+        b = [sphere(radius=10)]
+        try:
+            assert_compare(a, b, doprint)
+            raise NotImplementedError()
+        except AssertionError as ex:
+            func = self.assertIn if doprint else self.assertNotIn
+            func(str(a), ex.args[0])
+            func(str(b), ex.args[0])
+
+    def testPrintObjsFlagTrue(self):
+        self._do_printobjs_test(True)
+
+    def testPrintObjsFlagFalse(self):
+        self._do_printobjs_test(False)
