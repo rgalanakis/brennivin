@@ -1,15 +1,11 @@
 import atexit
 import mock
 import os
-try:
-    import StringIO
-except ImportError:
-    import io as StringIO
 import unittest
 import yaml
 
 from .compat import DependenciesMissing
-from brennivin import osutils, testhelpers, yamlext
+from brennivin import compat, osutils, testhelpers, yamlext
 
 
 def ensure_libyaml():
@@ -23,7 +19,7 @@ def get_yaml_filepath_str_and_stream(DICT, dumper=yaml.Dumper):
         yaml.dump(DICT, f, Dumper=dumper)
     atexit.register(os.remove, yamlfp)
     yamlstr = yaml.dump(DICT, None, dumper)
-    yamlstream = StringIO.StringIO(yamlstr)
+    yamlstream = compat.StringIO(yamlstr)
     yamlstream.getvalue()  # Force it to update internally
     return yamlfp, yamlstr, yamlstream
 
@@ -49,7 +45,7 @@ class IOTestsMixin(object):
         testhelpers.assertTextFilesEqual(self, path, self.FILE)
 
     def testDumpStream(self):
-        stream = StringIO.StringIO()
+        stream = compat.StringIO()
         self.cls().dump(self.DICT, stream)
         self.assertEqual(stream.getvalue(), self.STREAM.getvalue())
 

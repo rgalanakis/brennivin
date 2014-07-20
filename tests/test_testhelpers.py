@@ -6,6 +6,14 @@ import unittest
 from brennivin import compat, itertoolsext, osutils, testhelpers as th
 
 
+class FakeTestCaseTests(unittest.TestCase):
+    def testCanBeUsedAsTestCase(self):
+        tc = th.FakeTestCase()
+        with self.assertRaises(AssertionError):
+            th.assertNumbersEqual(tc, 1, 2)
+        self.assertIsInstance(tc, unittest.TestCase)
+
+
 class TestAssertNumbersEqual(unittest.TestCase):
     def testDifferenceRaises(self):
         """Test that a difference more than tolerance asserts."""
@@ -76,7 +84,7 @@ class AssertStartsAndEndsWithTests(unittest.TestCase):
         s = 'abcd'
         th.assertEndsWith(s, 'cd')
         with self.assertRaises(AssertionError):
-            th.assertStartsWith(s, 'c')
+            th.assertEndsWith(s, 'c')
 
 
 class TestAssertPermissionbitsEqual(unittest.TestCase):
@@ -139,6 +147,18 @@ class AssertTextFilesEqualTests(unittest.TestCase):
         self.f1.write(b'a')
         self.f2.write(b'a\n  \r\n \t \n')
         self.assertEq()
+
+
+class AssertFoldersEqualTests(unittest.TestCase):
+    def testThisFolderAgainstItself(self):
+        d = os.path.dirname(__file__)
+        th.assertFoldersEqual(self, d, d)
+
+    def testDifferentDirs(self):
+        this = os.path.dirname(__file__)
+        other = os.path.dirname(th.__file__)
+        with self.assertRaises(AssertionError):
+            th.assertFoldersEqual(self, this, other)
 
 
 class AssertJsonEqualTests(unittest.TestCase):
