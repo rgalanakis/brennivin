@@ -10,6 +10,7 @@ import binascii as _binascii
 import contextlib as _contextlib
 import errno as _errno
 import fnmatch as _fnmatch
+import ntpath
 import os as _os
 import shutil as _shutil
 import stat as _stat
@@ -153,11 +154,20 @@ def mktemp(*args, **kwargs):
 
 def path_components(path):
     """Return list of a path's components."""
-    folders = path.replace(altsep, _os.sep).split(_os.sep)
-    result = [f for f in folders if f]
-    if _os.name != 'nt' and path[0] == '/':
-        result.insert(0, '/')
-    return result
+    # Thanks to John Machin @ http://stackoverflow.com/a/4580931/884080 and
+    # Moe @ http://stackoverflow.com/a/182417/884080
+    parts = []
+    while True:
+        newpath, tail = ntpath.split(path)
+        if newpath == path:
+            assert not tail
+            if path:
+                parts.append(path)
+            break
+        parts.append(tail)
+        path = newpath
+    parts.reverse()
+    return parts
 
 
 def purename(filename):
