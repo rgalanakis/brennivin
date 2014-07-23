@@ -237,11 +237,9 @@ class MakeDirsTests(unittest.TestCase):
 
 
 class TestPathComponents(unittest.TestCase):
-    msg = "Bad path componentization on '%s'. Expected %s, got %s"
-
     def assertComponentsEqual(self, path, ideal):
         result = osutils.path_components(path)
-        self.assertEqual(result, ideal, self.msg % (path, ideal, result))
+        self.assertEqual(result, ideal)
 
     def testValidPaths(self):
         self.assertComponentsEqual(join(ROOT, 'foo', 'bar.baz'),
@@ -251,43 +249,13 @@ class TestPathComponents(unittest.TestCase):
 
     def testForwardSlashes(self):
         self.assertComponentsEqual('c:/foo/bar.baz',
-                                   ['c:/', 'foo', 'bar.baz'])
+                                   ['c:', 'foo', 'bar.baz'])
         self.assertComponentsEqual('foo/bar.baz',
                                    ['foo', 'bar.baz'])
 
     def testRespaths(self):
         self.assertComponentsEqual('res:/foo/bar.baz',
                                    ['res:', 'foo', 'bar.baz'])
-
-    def testVariousPaths(self):
-        d = {'': [],
-             'foo': ['foo'],
-             'foo/': ['foo', ''],
-             'foo\\': ['foo', ''],
-             '/foo': ['/', 'foo'],
-             '\\foo': ['\\', 'foo'],
-             'foo/bar': ['foo', 'bar'],
-             '/': ['/'],
-             'c:': ['c:'],
-             'c:/': ['c:/'],
-
-             # Windows is weird, here is a valid *relative* path
-             # to the current working directory on drive `c`...
-             'c:foo': ['c:', 'foo'],
-
-             # ...but here is an *absolute* path on drive `c`
-             'c:/foo': ['c:/', 'foo'],
-
-             'c:/users/john/foo.txt': ['c:/', 'users', 'john', 'foo.txt'],
-             'c:/users/mary major/f': ['c:/', 'users', 'mary major', 'f'],
-             'c:\\users\\mary major\\f': ['c:\\', 'users', 'mary major', 'f'],
-             '/users/john/foo.txt': ['/', 'users', 'john', 'foo.txt'],
-             'foo/bar/baz/loop': ['foo', 'bar', 'baz', 'loop'],
-             'foo/bar/baz/': ['foo', 'bar', 'baz', '']}
-
-        for path, ideal in d.items():
-            result = osutils.path_components(path)
-            self.assertEqual(result, ideal, self.msg % (path, ideal, result))
 
 
 class PurenameTests(unittest.TestCase):
