@@ -1,3 +1,4 @@
+import contextlib
 import unittest
 from random import choice
 
@@ -202,3 +203,25 @@ class TestLRU(unittest.TestCase):
         self.assertEqual(
             test_func(DoubleEq(2)),  # Trigger a re-entrant __eq__ call
             DoubleEq(2))  # Verify the correct return value
+
+
+class LooseContextManagerTests(unittest.TestCase):
+
+    # noinspection PyUnresolvedReferences
+    def test_is_loose(self):
+        @contextlib.contextmanager
+        def strict():
+            yield
+        strict = strict()
+
+        @functoolsext.loosecontextmanager
+        def loose():
+            yield
+        loose = loose()
+
+        strict.__enter__()
+        with self.assertRaises(TypeError):
+            strict.__exit__()
+
+        loose.__enter__()
+        loose.__exit__()

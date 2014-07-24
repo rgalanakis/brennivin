@@ -12,10 +12,14 @@ Members
 """
 
 from functools import *
-from collections import namedtuple
-from threading import RLock
+from collections import namedtuple as _namedtuple
+import contextlib as _contextlib
+from threading import RLock as _RLock
 
-_CacheInfo = namedtuple("CacheInfo", ["hits", "misses", "maxsize", "currsize"])
+from . import compat as _compat
+
+_CacheInfo = _namedtuple(
+    "CacheInfo", ["hits", "misses", "maxsize", "currsize"])
 
 
 class _HashedSeq(list):
@@ -86,7 +90,7 @@ def lru_cache(maxsize=128, typed=False):
         make_key = _make_key
         cache_get = cache.get  # bound method to lookup key or return None
         _len = len  # localize the global len() function
-        lock = RLock()  # because linkedlist updates aren't threadsafe
+        lock = _RLock()  # because linkedlist updates aren't threadsafe
         root = []  # root of the circular doubly linked list
         root[:] = [root, root, None, None]  # initialize by pointing to self
         nonlocal_root = [root]  # make updateable non-locally
@@ -186,3 +190,34 @@ def lru_cache(maxsize=128, typed=False):
         return update_wrapper(wrapper, user_function)
 
     return decorating_function
+
+
+if _compat.PY3K:
+    # noinspection PyProtectedMember
+    from contextlib import _GeneratorContextManager
+else:
+    from contextlib import GeneratorContextManager as _GeneratorContextManager
+
+
+class _LooseGeneratorContextManager(_GeneratorContextManager):
+    def __init__(self, func, *args, **kwargs):
+        if _compat.PY3K:
+            _GeneratorContextManager.__init__(self, func, *args, **kwargs)
+        else:
+            _GeneratorContextManager.__init__(self, func(*args, **kwargs))
+
+    def __exit__(self, *exc_info):
+        if not exc_info:
+            exc_info = (None, None, None)
+        return _GeneratorContextManager.__exit__(self, *exc_info)
+
+
+def loosecontextmanager(func):
+    """Just like contextlib.contextmanager,
+    except its __exit__ can be called without any arguments.
+    This makes it useful in things like ``TestCase.addCleanup(foo.__exit__)``.
+    """
+    @wraps(func)
+    def helper(*args, **kwds):
+        return _LooseGeneratorContextManager(func, *args, **kwds)
+    return helper
