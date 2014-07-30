@@ -173,12 +173,12 @@ class TestGetCompoundDiff(unittest.TestCase):
 
     def testListLen(self):
         self.assertBreadcrumb(
-            [0, 'len neq (2 != 3)'],
+            [0, 'len neq (2 != 3): [1, 2] != [1, 2, 3]'],
             get_compound_diff([[1, 2]], [[1, 2, 3]]))
 
     def testDictLen(self):
         self.assertBreadcrumb(
-            [0, 'len neq (1 != 2)'],
+            [0, "len neq (1 != 2): ['a'] != ['a', 'b']"],
             get_compound_diff([{'a': 1}], [{'a': 1, 'b': 2}]))
 
     def testMixed(self):

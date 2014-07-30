@@ -62,7 +62,8 @@ def _compare_list(a, b, breadcrumb):
     if not _check_type(b, list, breadcrumb):
         return False
     if len(a) != len(b):
-        breadcrumb.append('len neq (%s != %s)' % (len(a), len(b)))
+        breadcrumb.append(
+            'len neq (%s != %s): %s != %s' % (len(a), len(b), a, b))
         return False
     for i, (aitem, bitem) in enumerate(zip(a, b)):
         eq = _compare(aitem, bitem, breadcrumb)
