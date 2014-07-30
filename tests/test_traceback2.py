@@ -29,7 +29,7 @@ class Traceback2Tests(unittest.TestCase):
             self.assertEqual(lines[0], 'Traceback (most recent call last):')
             self.assertRegexpMatches(lines[1], '  File ".*test_traceback2.py", line \d\d, in test_print')
             self.assertEqual(lines[2], '    raise SystemError()')
-            self.assertRegexpMatches(lines[3], '                 out = <.*\.String\w?O object at 0x([0-9]|[a-z])*>')
+            self.assertRegexpMatches(lines[3], '                 out = <.*String\w?O object at 0x([0-9]|[a-z])*>')
             self.assertEqual(lines[4], '                self = <tests.test_traceback2.Traceback2Tests testMethod=test_print>')
             self.assertEqual(lines[-1], 'SystemError')
         except AssertionError:  # pragma: no cover
