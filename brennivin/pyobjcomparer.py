@@ -58,12 +58,25 @@ def _compare_tuple(a, b, breadcrumb):
     return _compare(list(a), list(b), breadcrumb)
 
 
+def _format_list_breadcrumb(a, b):
+    uniquea, uniqueb = list(a), list(b)
+    for item in a:
+        try:
+            uniqueb.remove(item)
+        except ValueError:
+            continue
+        else:
+            uniquea.remove(item)
+    result = 'len neq (%s != %s). Diff: %s, %s' % (
+        len(a), len(b), uniquea, uniqueb)
+    return result
+
+
 def _compare_list(a, b, breadcrumb):
     if not _check_type(b, list, breadcrumb):
         return False
     if len(a) != len(b):
-        breadcrumb.append(
-            'len neq (%s != %s): %s != %s' % (len(a), len(b), a, b))
+        breadcrumb.append(_format_list_breadcrumb(a, b))
         return False
     for i, (aitem, bitem) in enumerate(zip(a, b)):
         eq = _compare(aitem, bitem, breadcrumb)
