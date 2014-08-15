@@ -14,7 +14,8 @@ that augment the Python libraries with similar names.
 Others are just plain handy.
 Here's a rundown of what's included:
 
-- :mod:`brennivin.dochelpers` provides functions for creating prettier documentation,
+- :mod:`brennivin.dochelpers` provides functions
+  for creating prettier documentation,
 - :mod:`brennivin.ioutils` provides retry and timeout decorators,
 - :mod:`brennivin.itertoolsext` provides functions for working with iterables,
   like ``first``, ``last``, and all sorts of other useful things
@@ -22,12 +23,15 @@ Here's a rundown of what's included:
 - :mod:`brennivin.logutils` has helpful formatters,
   and functions for working with and cleaning up timestamped log files,
 - :mod:`brennivin.nicenum` provides pretty number and memory formatting,
-- :mod:`brennivin.osutils` has functions that should be on ``os`` and ``os.path`` in the first place,
-  such as a recursive file lister, and context manager to change the cwd,
-  and more.
-- :mod:`brennivin.platformutils` has a few functions to tell you about the process and OS/hardware,
-- :mod:`brennivin.preferences` provides an object that will serialize preferences,
-- :mod:`brennivin.pyobjcomparer` allows the comparison of complex Python objects,
+- :mod:`brennivin.osutils` has functions that should be on ``os`` and
+  ``os.path`` in the first place,  such as a recursive file lister,
+  and context manager to change the cwd, and more.
+- :mod:`brennivin.platformutils` has a few functions to tell you about
+  the process and OS/hardware,
+- :mod:`brennivin.preferences` provides an object that will
+  serialize preferences,
+- :mod:`brennivin.pyobjcomparer` allows the comparison
+  of complex Python objects,
   such as when you need to compare floats with a tolerance,
   but those floats are in deeply nested data structures,
 - :mod:`brennivin.testhelpers` has gobs of useful assertion methods
@@ -38,9 +42,10 @@ Here's a rundown of what's included:
   and mechanisms for communication such as tokens and signals.
 - :mod:`brennivin.traceback2` is like the ``traceback`` module but will
   include locals, and has more controls for formatting,
-- :mod:`brennivin.yamlext` contains some helpers for simplifying yaml reading/writing,
-- and :mod:`brennivin.zipfileutils` has useful functions for creating zip files
-  that you wish were on the ``zipfile`` module.
+- :mod:`brennivin.yamlext` contains some helpers
+  for simplifying yaml reading/writing,
+- and :mod:`brennivin.zipfileutils` has useful functions
+  for creating zip files that you wish were on the ``zipfile`` module.
 
 There's a lot more useful functionality in each of these modules
 than what's listed above, so check them out!
