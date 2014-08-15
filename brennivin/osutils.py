@@ -160,7 +160,6 @@ def path_components(path):
     while True:
         newpath, tail = ntpath.split(path)
         if newpath == path:
-            assert not tail
             if path:
                 parts.append(path)
             break
