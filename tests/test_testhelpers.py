@@ -116,37 +116,38 @@ class TestAssertPermissionbitsEqual(unittest.TestCase):
 
 class AssertTextFilesEqualTests(unittest.TestCase):
 
-    def setUp(self):
-        self.f1 = tempfile.NamedTemporaryFile()
-        self.f1.__enter__()
-        self.addCleanup(lambda: self.f1.__exit__)
-        self.f2 = tempfile.NamedTemporaryFile()
-        self.f2.__enter__()
-        self.addCleanup(lambda: self.f2.__exit__)
+    def _getTempfile(self):
+        fp = osutils.mktemp()
+        self.addCleanup(os.remove, fp)
+        return fp
 
-    def assertEq(self):
-        self.f1.flush()
-        self.f2.flush()
-        th.assertTextFilesEqual(self, self.f1.name, self.f2.name)
+    def write(self, data):
+        """Write ``data`` to a temp file and return that file's path."""
+        fp = self._getTempfile()
+        with open(fp, 'wb') as f:
+            f.write(data)
+        return fp
 
-    def assertNeq(self):
+    def assertEq(self, d1, d2):
+        f1 = self.write(d1)
+        f2 = self.write(d2)
+        th.assertTextFilesEqual(self, f1, f2)
+
+    def assertNeq(self, d1, d2):
         with self.assertRaises(AssertionError):
-            self.assertEq()
+            self.assertEq(d1, d2)
 
     def testIgnoresTrailingLineWhitespace(self):
-        self.f1.write(b'a\r\nb  \nc')
-        self.f2.write(b'a\nb\nc  ')
-        self.assertEq()
+        self.assertEq(b'a\r\nb  \nc',
+                      b'a\nb\nc  ')
 
     def testDifferentLineContentsAsserts(self):
-        self.f1.write(b'a\nb1')
-        self.f2.write(b'a\nb2')
-        self.assertNeq()
+        self.assertNeq(b'a\nb1',
+                       b'a\nb2')
 
     def testIgnoresTrailingWhitespaceLines(self):
-        self.f1.write(b'a')
-        self.f2.write(b'a\n  \r\n \t \n')
-        self.assertEq()
+        self.assertEq(b'a',
+                      b'a\n  \r\n \t \n')
 
 
 class AssertFoldersEqualTests(unittest.TestCase):
