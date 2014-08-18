@@ -32,3 +32,4 @@ Hopefully Brennivin has what you need.
 - **brennivin** on Read the Docs: http://brennivin.readthedocs.org/
 - **brennivin** on Travis-CI: https://travis-ci.org/rgalanakis/brennivin
 - **brennivin** on Coveralls: https://coveralls.io/r/rgalanakis/brennivin
+ 
