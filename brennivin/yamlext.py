@@ -63,7 +63,7 @@ Members
 import yaml as _yaml
 
 
-__all__ = ['dumps', 'dumpfile', 'dump', 'loads', 'loadfile', 'load']
+__all__ = ['dumps', 'dumpfile', 'dump', 'loads', 'loadfile', 'load', 'PyIO']
 
 
 class PyIO(object):
